@@ -70,7 +70,7 @@ function handleTicket(event) {
         category: category,
         text: message,
         status: "Open",
-        replies: []
+        replies: [] // Garandeert dat het admin panel antwoorden kan pushen
     };
 
     tickets.push(newTicket);
@@ -78,6 +78,11 @@ function handleTicket(event) {
     
     showToast("🎟️ Support Ticket succesvol naar het Admin Panel gestuurd!", "success");
     event.target.reset();
+}
+
+// Alternatieve handler-naam mocht je formulier hiernaar verwijzen
+if (typeof handleTicketSubmit === "undefined") {
+    window.handleTicketSubmit = handleTicket;
 }
 
 function handleVacature(event) {
@@ -109,36 +114,57 @@ function toggleAuthTab(type) {
     if(type === 'login') {
         document.getElementById('login-form').style.display = 'block';
         document.getElementById('register-form').style.display = 'none';
+        document.getElementById('tab-login').classList.add('active');
+        document.getElementById('tab-register').classList.remove('active');
     } else {
         document.getElementById('login-form').style.display = 'none';
         document.getElementById('register-form').style.display = 'block';
+        document.getElementById('tab-login').classList.remove('active');
+        document.getElementById('tab-register').classList.add('active');
     }
 }
 function handleRegister(event) {
     event.preventDefault();
-    localStorage.setItem('wp_username', document.getElementById('reg-user').value);
+    const username = document.getElementById('reg-user').value;
+    localStorage.setItem('wp_username', username);
     localStorage.setItem('wp_password', document.getElementById('reg-pass').value);
+    
+    // Initialiseer basissaldo en rang in de database voor het profiel
+    localStorage.setItem(`wp_profile_${username}`, JSON.stringify({ rank: "Speler", coins: "500" }));
+    
     showToast("🎉 Geregistreerd! Log nu in.", "success");
     toggleAuthTab('login');
 }
 function handleLogin(event) {
     event.preventDefault();
-    if(document.getElementById('login-user').value === localStorage.getItem('wp_username') && document.getElementById('login-pass').value === localStorage.getItem('wp_password')) {
+    const userVal = document.getElementById('login-user').value;
+    const passVal = document.getElementById('login-pass').value;
+
+    if(userVal === localStorage.getItem('wp_username') && passVal === localStorage.getItem('wp_password')) {
         localStorage.setItem('wp_is_logged_in', 'true');
+        localStorage.setItem('wp_username', userVal); // Match case fix
         showToast("🔓 Ingelogd!", "success");
         closeAuthModal();
         location.reload();
-    } else { showToast("Fout!", "error"); }
+    } else { 
+        showToast("Gebruikersnaam of wachtwoord onjuist!", "error"); 
+    }
 }
 function handleLogout() {
     localStorage.removeItem('wp_is_logged_in');
     location.reload();
 }
+
+// ====== DYNAMISCH LOGIN EN PROFIELMENU GENEREREN ======
 document.addEventListener("DOMContentLoaded", () => {
     const authLi = document.getElementById('nav-auth');
     if (authLi && localStorage.getItem('wp_is_logged_in') === 'true') {
-        authLi.innerHTML = `<span style="color:#d4af37; margin-right:10px;">👤 ${localStorage.getItem('wp_username')}</span><a href="#" onclick="handleLogout()" class="auth-btn">Log uit</a>`;
+        const username = localStorage.getItem('wp_username') || "Speler";
+        authLi.innerHTML = `
+            <a href="profile.html" style="color:#d4af37; margin-right:15px; font-weight:700; text-decoration:none;">👤 ${username}</a>
+            <a href="#" onclick="handleLogout()" class="auth-btn" style="text-decoration:none;">Log uit</a>
+        `;
     } else if (authLi) {
-        authLi.innerHTML = `<a href="#" onclick="openAuthModal()" class="auth-btn">Inloggen</a>`;
+        authLi.innerHTML = `<a href="#" onclick="openAuthModal()" class="auth-btn" style="text-decoration:none;">Inloggen</a>`;
     }
 });
