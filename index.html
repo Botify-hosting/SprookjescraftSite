@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WonderPark - Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Wonder<span>Park</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="attracties.html">Attracties</a></li>
+                <li><a href="tijden.html">Tijden</a></li>
+                <li><a href="vacatures.html">Vacatures</a></li>
+                <li><a href="staff.html">Staff</a></li>
+                <li><a href="highscores.html">Highscores</a></li>
+                <li><a href="tickets.html">Tickets</a></li>
+                <li><a href="webshop.html" class="shop-btn">Webshop</a></li>
+                <li id="nav-auth"><a href="#" onclick="openAuthModal()" class="auth-btn">Inloggen</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero animated-fade-in">
+        <div class="hero-content">
+            <h1 class="glow-text">WonderPark</h1>
+            <p>Beleef de magische wereld van het mooiste pretpark, nagebouwd in Minecraft!</p>
+            <button id="ip-button" onclick="copyIP()">
+                IP: <span id="server-ip">play.wonderparkmc.nl</span>
+            </button>
+            <div class="player-count">
+                <span class="dot pulse"></span> <span id="online-players">48</span> spelers online
+            </div>
+        </div>
+    </header>
+
+    <!-- COUNTDOWN -->
+    <section class="countdown-section">
+        <h2>Volgende Grote Show & Opening</h2>
+        <div id="countdown">
+            <div class="time-block">`<span id="days">00</span>`<p>Dagen</p></div>
+            <div class="time-block"><span id="hours">00</span><p>Uren</p></div>
+            <div class="time-block"><span id="minutes">00</span><p>Minuten</p></div>
+            <div class="time-block"><span id="seconds">00</span><p>Seconden</p></div>
+        </div>
+    </section>
+
+    <!-- NIEUWS -->
+    <main class="container">
+        <h2 class="section-title">Laatste Nieuws</h2>
+        <div class="news-grid">
+            <article class="news-card card-hover">
+                <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1597466599360-3b9775841aec?q=80&w=600&auto=format&fit=cover');"></div>
+                <div class="news-content">
+                    <span class="date">Vandaag</span>
+                    <h3>Grootse Opening van WonderPark!</h3>
+                    <p>De poorten van WonderPark zijn officieel geopend. Kom de magie zelf ervaren!</p>
+                    <a href="attracties.html" class="read-more">Bekijk Rijken →</a>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- MODALS & NOTIFICATIONS -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content animate-slide-down">
+            <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+            <div class="auth-tabs">
+                <button id="tab-login" class="active" onclick="toggleAuthTab('login')">Inloggen</button>
+                <button id="tab-register" onclick="toggleAuthTab('register')">Registreren</button>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <input type="text" id="login-user" placeholder="Minecraft Naam" required>
+                <input type="password" id="login-pass" placeholder="Wachtwoord" required>
+                <button type="submit" class="submit-btn">Log in</button>
+            </form>
+            <form id="register-form" onsubmit="handleRegister(event)" style="display:none;">
+                <input type="text" id="reg-user" placeholder="Minecraft Naam" required>
+                <input type="email" id="reg-email" placeholder="E-mailadres" required>
+                <input type="password" id="reg-pass" placeholder="Wachtwoord" required>
+                <button type="submit" class="submit-btn">Registreer Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
