@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WonderPark Central — Admin Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f111a;
+            --panel-bg: #161925;
+            --accent-purple: #7000ff;
+            --accent-blue: #00bfff;
+            --text-main: #ffffff;
+            --text-muted: #8b949e;
+            --success: #238636;
+            --danger: #da3637;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Security Overlay */
+        #lock-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-dark); z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+
+        /* Sidebar Navigation */
+        aside { width: 260px; background-color: var(--panel-bg); border-right: 1px solid rgba(255,255,255,0.05); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .logo-area { font-weight: 700; font-size: 20px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-blue); }
+        .nav-btn { background: none; border: none; color: var(--text-muted); padding: 12px 15px; text-align: left; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+        .nav-btn:hover, .nav-btn.active { background: rgba(112, 0, 255, 0.15); color: var(--text-main); font-weight: 600; border-left: 4px solid var(--accent-purple); }
+        .logout-btn { margin-top: auto; background: rgba(218, 54, 55, 0.1); color: var(--danger); }
+        .logout-btn:hover { background: var(--danger); color: white; }
+
+        /* Main Workspace */
+        main { flex: 1; padding: 30px; overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; }
+        h1 { font-size: 26px; }
+
+        /* Form & Component Styling */
+        .panel-card { background: var(--panel-bg); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 25px; }
+        .panel-card h3 { margin-bottom: 15px; color: var(--accent-blue); font-size: 18px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 13px; color: var(--text-muted); }
+        input, textarea, select { background: #1f2335; border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; color: white; font-size: 14px; }
+        input:focus, textarea:focus { border-color: var(--accent-purple); outline: none; }
+        .btn { background: var(--accent-purple); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+        .btn:hover { background: #5a00cc; }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #1c6e2e; }
+
+        /* Data Tables / Lists */
+        .data-list { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-list th { text-align: left; padding: 12px; color: var(--text-muted); font-size: 13px; border-bottom: 2px solid rgba(255,255,255,0.05); }
+        .data-list td { padding: 15px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; vertical-align: top; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .badge-pending { background: rgba(255,165,0,0.15); color: orange; }
+        .badge-solved { background: rgba(35,134,54,0.15); color: #3fb950; }
+
+        /* Tab Switch Logic visibility */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- Security Gate -->
+    <div id="lock-screen">
+        <h2>🔒 Control Center Beveiligd</h2>
+        <p style="color: var(--text-muted); margin-top: 10px;">Verifiëren van administrator privileges...</p>
+    </div>
+
+    <!-- Navigation Sidebar -->
+    <aside>
+        <div class="logo-area">WP Admin</div>
+        <button class="nav-btn active" onclick="switchTab('dashboard')">📊 Live Overzicht</button>
+        <button class="nav-btn" onclick="switchTab('countdown')">⏳ Countdown timer</button>
+        <button class="nav-btn" onclick="switchTab('coins')">🪙 Coins & Profielen</button>
+        <button class="nav-btn" onclick="switchTab('support')">💬 Support Systeem</button>
+        <button class="nav-btn" onclick="switchTab('sollicitaties')">📝 Sollicitaties</button>
+        <button class="nav-btn" onclick="switchTab('notifications')">📢 Global Alerts</button>
+        <button class="nav-btn logout-btn" onclick="logoutAdmin()">🚪 Uitloggen</button>
+    </aside>
+
+    <!-- Content Engine -->
+    <main>
+        <header>
+            <h1 id="current-tab-title">Administratief Dashboard</h1>
+            <div id="admin-identity" style="font-size: 14px; color: var(--text-muted);">Ingelogd als: <strong>Hoofd-Admin</strong></div>
+        </header>
+
+        <!-- TAB: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="grid-2">
+                <div class="panel-card">
+                    <h3>Systeemonderhoud</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">Welkom terug in het WonderPark beheersysteem. Vanaf hier beheer je alle vitale databases en frontend configuraties.</p>
+                    <button class="btn" onclick="resetMockData()">🔄 Reset alle Mockdata</button>
+                </div>
+                <div class="panel-card">
+                    <h3>Huidige Snelkoppelingen</h3>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn" onclick="switchTab('support')" style="background:#2b304a">Open Support</button>
+                        <button class="btn" onclick="switchTab('notifications')" style="background:#2b304a">Stuur Alert</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: COUNTDOWN -->
+        <div id="tab-countdown" class="tab-content">
+            <div class="panel-card">
+                <h3>Countdown Timer Instellen</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Pas de doeldatum aan voor evenementen of onderhoud op de hoofdpagina.</p>
+                <div class="form-group" style="max-width: 400px;">
+                    <label>Kies nieuwe doeldatum en tijd:</label>
+                    <input type="datetime-local" id="countdown-date-input">
+                </div>
+                <button class="btn btn-success" onclick="saveCountdown()">💾 Wijzigingen Opslaan</button>
+            </div>
+        </div>
+
+        <!-- TAB: COINS & PROFIELEN -->
+        <div id="tab-coins" class="tab-content">
+            <div class="panel-card">
+                <h3>Speler Economie Beheren</h3>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Spelersnaam / Minecraft UUID:</label>
+                        <input type="text" id="coin-username" placeholder="Bijv. WonderUser">
+                    </div>
+                    <div class="form-group">
+                        <label>Actie:</label>
+                        <select id="coin-action">
+                            <option value="add">Coins Toevoegen</option>
+                            <option value="remove">Coins Aftrekken</option>
+                            <option value="set">Vaste Waarde Instellen</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="max-width: 200px;">
+                    <label>Aantal Coins:</label>
+                    <input type="number" id="coin-amount" value="100">
+                </div>
+                <button class="btn btn-success" onclick="modifyCoins()">💸 Economie Aanpassen</button>
+            </div>
+        </div>
+
+        <!-- TAB: SUPPORT -->
+        <div id="tab-support" class="tab-content">
+            <div class="panel-card">
+                <h3>Actieve Support Vragen</h3>
+                <table class="data-list">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Gebruiker</th>
+                            <th>Onderwerp / Vraag</th>
+                            <th>Status</th>
+                            <th>Actie</th>
+                        </tr>
+                    </thead>
+                    <tbody id="support-table-body">
+                        <!-- Dynamisch geladen -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: SOLLICITATIES -->
+        <div id="tab-sollicitaties" class="tab-content">
+            <div class="panel-card">
+                <h3>Binnengekomen Staff-Aanmeldingen</h3>
+                <table class="data-list">
+                    <thead>
+                        <tr>
+                            <th>Naam</th>
+                            <th>Functie</th>
+                            <th>Motivatie</th>
+                            <th>Status</th>
+                            <th>Beoordeling</th>
+                        </tr>
+                    </thead>
+                    <tbody id="application-table-body">
+                        <!-- Dynamisch geladen -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: NOTIFICATIONS -->
+        <div id="tab-notifications" class="tab-content">
+            <div class="panel-card">
+                <h3>Global Live Notification Push</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">Pusht direct een notificatiebalk of toast naar elke bezoeker die momenteel op de website zit.</p>
+                <div class="form-group">
+                    <label>Berichtinhoud:</label>
+                    <input type="text" id="global-notify-msg" placeholder="Bijv: De server gaat over 10 minuten in onderhoud!">
+                </div>
+                <div class="form-group" style="max-width: 300px;">
+                    <label>Type Melding:</label>
+                    <select id="global-notify-type">
+                        <option value="info">Blauw (Informatief)</option>
+                        <option value="success">Groen (Succes / Aankondiging)</option>
+                        <option value="error">Rood (Urgent / Alert)</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="sendGlobalNotification()">🚀 Push Global Alert</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Admin Engine Script -->
+    <script>
+        // --- AUTHENTICATIE CHECK (DIRECT BIJ LADEN) ---
+        (function verifyAuth() {
+            const session = localStorage.getItem("wp_admin_session");
+            if (!session || !session.startsWith("authenticated_")) {
+                alert("Geen toegang! Je bent niet geautoriseerd.");
+                window.location.href = "index.html"; 
+            } else {
+                document.getElementById("lock-screen").style.display = "none";
+            }
+        })();
+
+        function logoutAdmin() {
+            localStorage.removeItem("wp_admin_session");
+            window.location.href = "index.html";
+        }
+
+        // --- DYNAMISCHE MOCK DATA GENERATIE ---
+        if(!localStorage.getItem("wp_support_tickets")) {
+            const initialTickets = [
+                {id: "1042", user: "GamerNL", text: "Ik kan niet inloggen via de launcher, hij zegt ongeldige sessie.", status: "In behandeling"},
+                {id: "1043", user: "MineCraftPro", text: "Mijn gekochte cosmetic is niet geleverd in de hub.", status: "In behandeling"}
+            ];
+            localStorage.setItem("wp_support_tickets", JSON.stringify(initialTickets));
+        }
+
+        if(!localStorage.getItem("wp_applications")) {
+            const initialApps = [
+                {name: "Kevin_05", role: "Moderator", motivation: "Ik heb veel ervaring met regels handhaven en speel al 2 jaar op de server.", status: "In afwachting"},
+                {name: "VlinderX", role: "Builder", motivation: "Ik wil graag helpen met het bouwen van de nieuwe spawn.", status: "In afwachting"}
+            ];
+            localStorage.setItem("wp_applications", JSON.stringify(initialApps));
+        }
+
+        // --- TAB ENGINE ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            // Verander titel dynamisch
+            const titles = {
+                dashboard: "📊 Live Systeemonderhoud",
+                countdown: "⏳ Countdown Timer Configureren",
+                coins: "🪙 Coins & Spelerprofielen Wijzigen",
+                support: "💬 Support Ticket Systeem",
+                sollicitaties: "📝 Staff Sollicitaties Controleren",
+                notifications: "📢 Global Alerts Uitsturen"
+            };
+            document.getElementById("current-tab-title").innerText = titles[tabId];
+
+            if(tabId === 'support') loadTickets();
+            if(tabId === 'sollicitaties') loadApplications();
+        }
+
+        // --- ACTIONS ENGINE ---
+        function saveCountdown() {
+            const val = document.getElementById("countdown-date-input").value;
+            if(!val) return alert("Selecteer een geldige datum!");
+            localStorage.setItem("wp_countdown_target", val);
+            alert("⏰ Countdown succesvol verplaatst naar: " + val);
+        }
+
+        function modifyCoins() {
+            const user = document.getElementById("coin-username").value;
+            const action = document.getElementById("coin-action").value;
+            const amount = document.getElementById("coin-amount").value;
+            if(!user) return alert("Vul een spelersnaam in!");
+            
+            alert(`🪙 Transactie verwerkt: Actie '${action}' met ${amount} coins toegepast op speler ${user}.`);
+        }
+
+        function loadTickets() {
+            const tickets = JSON.parse(localStorage.getItem("wp_support_tickets"));
+            const tbody = document.getElementById("support-table-body");
+            tbody.innerHTML = "";
+            tickets.forEach((t, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${t.id}</td>
+                        <td><strong>${t.user}</strong></td>
+                        <td>${t.text}</td>
+                        <td><span class="badge ${t.status === 'Opgelost' ? 'badge-solved' : 'badge-pending'}">${t.status}</span></td>
+                        <td>
+                            ${t.status !== 'Opgelost' ? `<button class="btn btn-success" style="padding:5px 10px; font-size:11px;" onclick="resolveTicket(${index})">Sluiten & Oplossen</button>` : 'Afgehandeld'}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function resolveTicket(index) {
+            const tickets = JSON.parse(localStorage.getItem("wp_support_tickets"));
+            tickets[index].status = "Opgelost";
+            localStorage.setItem("wp_support_tickets", JSON.stringify(tickets));
+            loadTickets();
+        }
+
+        function loadApplications() {
+            const apps = JSON.parse(localStorage.getItem("wp_applications"));
+            const tbody = document.getElementById("application-table-body");
+            tbody.innerHTML = "";
+            apps.forEach((app, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${app.name}</strong></td>
+                        <td><span style="color:var(--accent-blue)">${app.role}</span></td>
+                        <td><i style="font-size:13px; color:var(--text-muted)">"${app.motivation}"</i></td>
+                        <td><span class="badge ${app.status === 'Geaccepteerd' ? 'badge-solved' : app.status === 'Afgewezen' ? 'badge-pending' : ''}">${app.status}</span></td>
+                        <td>
+                            ${app.status === 'In afwachting' ? `
+                                <button class="btn btn-success" style="padding:5px 10px; font-size:11px;" onclick="handleApp(${index}, 'Geaccepteerd')">Aannemen</button>
+                                <button class="btn" style="padding:5px 10px; font-size:11px; background:var(--danger);" onclick="handleApp(${index}, 'Afgewezen')">Afwijzen</button>
+                            ` : 'Beslist'}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function handleApp(index, status) {
+            const apps = JSON.parse(localStorage.getItem("wp_applications"));
+            apps[index].status = status;
+            localStorage.setItem("wp_applications", JSON.stringify(apps));
+            loadApplications();
+        }
+
+        function sendGlobalNotification() {
+            const msg = document.getElementById("global-notify-msg").value;
+            const type = document.getElementById("global-notify-type").value;
+            if(!msg) return alert("Voer eerst een bericht in.");
+            
+            localStorage.setItem("wp_global_alert", JSON.stringify({ message: msg, type: type, timestamp: Date.now() }));
+            alert("🚀 Alert naar de website gestuurd!");
+        }
+
+        function resetMockData() {
+            localStorage.removeItem("wp_support_tickets");
+            localStorage.removeItem("wp_applications");
+            localStorage.removeItem("wp_global_alert");
+            location.reload();
+        }
+    </script>
+</body>
+</html>
