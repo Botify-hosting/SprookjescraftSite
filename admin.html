@@ -30,10 +30,10 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Sidebar Navigation */
-        aside { width: 300px; background: var(--panel-bg); border-right: 2px solid var(--gold); padding: 30px 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: 5px 0 25px rgba(0,0,0,0.5); }
+        aside { width: 300px; background: var(--panel-bg); border-right: 2px solid var(--gold); padding: 30px 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: 5px 0 25px rgba(0,0,0,0.5); overflow-y: auto; }
         .brand-zone { font-size: 24px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 2px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; text-align: center; }
         .brand-zone span { color: var(--gold); text-shadow: 0 0 10px rgba(212,175,55,0.3); }
-        .nav-btn { background: none; border: none; color: var(--text-muted); padding: 14px 18px; text-align: left; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s ease; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); padding: 14px 18px; text-align: left; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s ease; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; width: 100%; }
         .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.02); }
         .nav-btn.active { background: linear-gradient(90deg, rgba(212,175,55,0.15), transparent); color: var(--gold); border-left: 4px solid var(--gold); border-color: rgba(212,175,55,0.3) transparent rgba(212,175,55,0.1) rgba(212,175,55,0.3); font-weight: 600; box-shadow: -5px 0 15px rgba(212,175,55,0.05); }
         .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
@@ -44,7 +44,7 @@
         header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
         
         /* Dashboard Stats Grid */
-        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 35px; }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 35px; }
         .stat-widget { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 22px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
         .stat-widget::before { content:''; position:absolute; top:0; left:0; width:100%; height:3px; background: var(--gold); opacity: 0.7; }
         .stat-widget h4 { font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
@@ -60,6 +60,7 @@
         label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         input, textarea, select { background: #090a12; border: 1px solid rgba(212,175,55,0.2); padding: 14px; border-radius: 6px; color: #fff; font-size: 14px; transition: all 0.2s ease; width: 100%; }
         input:focus, textarea:focus, select:focus { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,240,255,0.15); outline: none; }
+        .inline-row { display: flex; gap: 15px; align-items: center; }
         
         /* Action Buttons */
         .btn { background: var(--gold); color: #000; border: none; padding: 14px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -83,6 +84,9 @@
         .pill-In-Behandeling { background: rgba(241, 196, 15, 0.15); color: var(--warning); border: 1px solid var(--warning); }
         .pill-Gesloten { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid var(--danger); }
 
+        /* Minecraft Badge Preview Elements */
+        .rank-badge-preview { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 13px; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; }
+
         /* View State Controller */
         .view-pane { display: none; }
         .view-pane.active { display: block; animation: panelFade 0.4s ease; }
@@ -103,6 +107,7 @@
         <button class="nav-btn" onclick="switchPane('countdown')">⏳ Master Countdown</button>
         <button class="nav-btn" onclick="switchPane('tickets')">💬 Support Tickets (<span id="badge-ticket-count">0</span>)</button>
         <button class="nav-btn" onclick="switchPane('apps')">📝 Sollicitatiebeheer (<span id="badge-app-count">0</span>)</button>
+        <button class="nav-btn" onclick="switchPane('ranks')">👑 Rangen & Permissies</button>
         <button class="nav-btn" onclick="switchPane('economy')">🪙 Economie & Profielen</button>
         <button class="nav-btn" onclick="switchPane('alerts')">📢 Global Site Push</button>
         <button class="nav-btn" onclick="switchPane('blacklist')">🚫 IP & Account Ban</button>
@@ -127,7 +132,7 @@
 
         <div id="pane-overview" class="view-pane active">
             <div class="panel-card">
-                <h3>🔄 Centrale Database Manipulatie</h3>
+                <h3>🔄 Deel 1: Centrale Database Manipulatie</h3>
                 <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">De website draait op een gesynchroniseerde client-side database. Indien testbestanden, nep-tickets of demonstratie-sollicitaties vereist zijn om de interface te controleren, gebruik dan de onderstaande knop om de database direct te overschrijven met uitgebreide pre-sets.</p>
                 <button class="btn" onclick="injectSystemPresets()">🔄 Database Overschrijven Met Testbestanden</button>
             </div>
@@ -159,6 +164,62 @@
             </div>
         </div>
 
+        <!-- NEW: RANK CREATOR & MANAGER PANE -->
+        <div id="pane-ranks" class="view-pane">
+            <div class="grid-2">
+                <div class="panel-card">
+                    <h3>🛠️ Stap 1: Nieuwe Rang Ontwerpen (Creator)</h3>
+                    <div class="form-element">
+                        <label>Rang ID / Systeemnaam (Uniek):</label>
+                        <input type="text" id="rank-create-id" placeholder="bijv. god-rank">
+                    </div>
+                    <div class="form-element">
+                        <label>Rang Tekst (Display):</label>
+                        <input type="text" id="rank-create-text" placeholder="GOD">
+                    </div>
+                    <div class="form-element">
+                        <label>Optionele Emoji:</label>
+                        <input type="text" id="rank-create-emoji" placeholder="⚡">
+                    </div>
+                    <div class="form-element">
+                        <label>Kleurmodus:</label>
+                        <select id="rank-create-mode" onchange="toggleGradientInputs()">
+                            <option value="solid">Eén Vaste Kleur (Solid Color)</option>
+                            <option value="gradient">Modieuze Verlooptint (Linear Gradient)</option>
+                        </select>
+                    </div>
+                    <div class="form-element" id="rank-color-container-1">
+                        <label>Primaire Rangkleur (Hex / CSS):</label>
+                        <input type="text" id="rank-create-color1" value="#ff00ff" placeholder="#ff00ff">
+                    </div>
+                    <div class="form-element" id="rank-color-container-2" style="display:none;">
+                        <label>Secundaire Verloopkleur:</label>
+                        <input type="text" id="rank-create-color2" value="#00ffff" placeholder="#00ffff">
+                    </div>
+                    <button class="btn btn-success" onclick="saveCustomRank()">✨ Genereer & Registreer Rang</button>
+                </div>
+
+                <div class="panel-card">
+                    <h3>👑 Stap 2: Rang Toewijzen Aan Spelers</h3>
+                    <p style="color:var(--text-muted); font-size:13px; margin-bottom:15px;">Koppel handmatig gemaakte custom rangen aan actieve spelerprofielen.</p>
+                    <div class="form-element">
+                        <label>Doelnaam Speler (Exact):</label>
+                        <input type="text" id="rank-assign-user" placeholder="Bijv. PretparkGek_MC">
+                    </div>
+                    <div class="form-element">
+                        <label>Selecteer Geregistreerde Rang:</label>
+                        <select id="rank-assign-select">
+                            <!-- Dynamically filled -->
+                        </select>
+                    </div>
+                    <button class="btn" onclick="assignRankToPlayer()">👑 Wijzig Serverrang</button>
+
+                    <h3 style="margin-top: 30px; font-size:16px;">📋 Systeemoverzicht Geregistreerde Rangen</h3>
+                    <div id="admin-ranks-list-zone" style="max-height:180px; overflow-y:auto; font-size:13px; display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="pane-economy" class="view-pane">
             <div class="panel-card">
                 <h3>🪙 Spelerprofiel Databases Modificeren</h3>
@@ -168,7 +229,7 @@
                         <input type="text" id="econ-target-user" placeholder="Bijv. Levi_W">
                     </div>
                     <div class="form-element">
-                        <label>Nieuwe Serverrang:</label>
+                        <label>Snelle Systeemrang Toewijzing:</label>
                         <select id="econ-target-rank">
                             <option value="Speler">Speler (Default)</option>
                             <option value="VIP">VIP Rank</option>
@@ -251,8 +312,9 @@
             const titles = {
                 overview: "Systeem Status & Statistieken",
                 countdown: "Master Countdown Timer Instellingen",
-                tickets: "Support Ticket Modoratie Panel",
+                tickets: "Support Ticket Moderatie Panel",
                 apps: "Staff Sollicitatie Management",
+                ranks: "Centrale Serverrangen & Prefix Editor",
                 economy: "Spelerprofiel Rangen & Munten Databases",
                 alerts: "Global Website Broadcast Systeem",
                 blacklist: "Toegangsbeheer & Ban-Systeem"
@@ -261,6 +323,7 @@
             
             if(paneId === 'tickets') renderAdminTickets();
             if(paneId === 'apps') renderAdminApps();
+            if(paneId === 'ranks') renderRanksManagement();
             syncCounters();
         }
 
@@ -268,12 +331,18 @@
             const tickets = JSON.parse(localStorage.getItem("wp_support_tickets")) || [];
             const apps = JSON.parse(localStorage.getItem("wp_applications")) || [];
             const bans = JSON.parse(localStorage.getItem("wp_system_bans")) || [];
+            
+            let profilesCount = 0;
+            for(let i=0; i<localStorage.length; i++) {
+                if(localStorage.key(i).startsWith("wp_profile_")) profilesCount++;
+            }
 
             document.getElementById("badge-ticket-count").innerText = tickets.filter(t => t.status !== 'Gesloten').length;
             document.getElementById("badge-app-count").innerText = apps.filter(a => a.status === 'In afwachting').length;
 
             document.getElementById("stat-total-tickets").innerText = tickets.length;
             document.getElementById("stat-total-apps").innerText = apps.length;
+            document.getElementById("stat-total-profiles").innerText = profilesCount || 1;
             document.getElementById("stat-total-bans").innerText = bans.length;
         }
 
@@ -285,50 +354,59 @@
             alert("⏰ Succes: Klok gesynchroniseerd op: " + val);
         }
 
-        // --- LIVE TICKETS PROCESSOR ---
+        // --- LIVE TICKETS PROCESSOR (FIXED BUGGED RENDER) ---
         function renderAdminTickets() {
             const container = document.getElementById("master-ticket-render-zone");
             const tickets = JSON.parse(localStorage.getItem("wp_support_tickets")) || [];
             container.innerHTML = tickets.length === 0 ? "<p style='color:var(--text-muted);'>Geen openstaande of verwerkte support tickets gedetecteerd.</p>" : "";
 
             tickets.forEach((t, i) => {
-                let textLines = t.replies.map(r => `
+                let textLines = (t.replies || []).map(r => `
                     <div class="history-line">
                         [${r.sender === 'Admin Staff' ? '<span class="tag-admin">STAFF</span>' : '<span class="tag-user">USER</span>'}] 
                         <b>${r.sender}:</b> ${r.msg}
                     </div>
                 `).join('');
 
-                container.innerHTML += `
-                    <div class="operation-wrapper">
-                        <div class="operation-header">
-                            <h3>🎟️ Ticket ID: #${t.id} - Speler: ${t.user}</h3>
-                            <span class="pill pill-${t.status.replace(/ /g, '-')}">${t.status}</span>
-                        </div>
-                        <p style="margin-bottom:10px;"><b>Categorie:</b> <span style="color:var(--neon-cyan);">${t.category}</span></p>
-                        <p style="background:#090a12; padding:12px; border-radius:4px; margin-bottom:15px;"><b>Oorspronkelijk Bericht:</b> ${t.text}</p>
-                        
-                        <label>Communicatie Log:</label>
-                        <div class="history-terminal">${textLines || "Geen berichtenwisseling gestart."}</div>
+                const wrapper = document.createElement('div');
+                wrapper.className = 'operation-wrapper';
+                wrapper.innerHTML = `
+                    <div class="operation-header">
+                        <h3>🎟️ Ticket ID: #${t.id} - Speler: ${t.user}</h3>
+                        <span class="pill pill-${t.status.replace(/ /g, '-')}">${t.status}</span>
+                    </div>
+                    <p style="margin-bottom:10px;"><b>Categorie:</b> <span style="color:var(--neon-cyan);">${t.category}</span></p>
+                    <p style="background:#090a12; padding:12px; border-radius:4px; margin-bottom:15px;"><b>Oorspronkelijk Bericht:</b> ${t.text}</p>
+                    
+                    <label>Communicatie Log:</label>
+                    <div class="history-terminal">${textLines || "Geen berichtenwisseling gestart."}</div>
 
-                        <div class="form-element" style="margin-top:15px;">
-                            <label>Typ Antwoord:</label>
-                            <input type="text" id="ticket-reply-input-${i}" placeholder="Schrijf hier je officiële antwoord naar de speler...">
-                        </div>
-                        <div style="display:flex; gap:12px;">
-                            <button class="btn" onclick="submitTicketAction(${i}, 'In Behandeling')">Antwoord Verzenden</button>
-                            <button class="btn btn-success" onclick="submitTicketAction(${i}, 'Gesloten')">Antwoord & Ticket Sluiten</button>
-                        </div>
+                    <div class="form-element" style="margin-top:15px;">
+                        <label>Typ Antwoord:</label>
+                        <input type="text" id="ticket-reply-input-${i}" placeholder="Schrijf hier je officiële antwoord naar de speler...">
+                    </div>
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn action-send-reply">Antwoord Verzenden</button>
+                        <button class="btn btn-success action-close-ticket">Antwoord & Ticket Sluiten</button>
                     </div>
                 `;
+
+                // Add event listeners structurally to protect closure integrity
+                wrapper.querySelector('.action-send-reply').addEventListener('click', () => submitTicketAction(i, 'In Behandeling'));
+                wrapper.querySelector('.action-close-ticket').addEventListener('click', () => submitTicketAction(i, 'Gesloten'));
+
+                container.appendChild(wrapper);
             });
         }
 
         function submitTicketAction(index, targetStatus) {
             let tickets = JSON.parse(localStorage.getItem("wp_support_tickets")) || [];
-            const replyMsg = document.getElementById(`ticket-reply-input-${index}`).value;
+            const replyInput = document.getElementById(`ticket-reply-input-${index}`);
+            const replyMsg = replyInput ? replyInput.value : "";
 
-            if(replyMsg) {
+            if(!tickets[index].replies) tickets[index].replies = [];
+            
+            if(replyMsg.trim() !== "") {
                 tickets[index].replies.push({ sender: "Admin Staff", msg: replyMsg });
             }
             tickets[index].status = targetStatus;
@@ -380,6 +458,92 @@
             syncCounters();
         }
 
+        // --- EXCLUSIVE CUSTOM RANK SYSTEMS (CREATOR & ASSIGNER) ---
+        function toggleGradientInputs() {
+            const mode = document.getElementById("rank-create-mode").value;
+            document.getElementById("rank-color-container-2").style.display = (mode === 'gradient') ? 'block' : 'none';
+        }
+
+        function getRegisteredRanks() {
+            let defaultRanks = {
+                "Speler": { text: "Speler", color1: "#7e84a3", mode: "solid", emoji: "" },
+                "VIP": { text: "VIP", color1: "#f1c40f", mode: "solid", emoji: "⭐" },
+                "MEGA-VIP": { text: "MEGA-VIP", color1: "#2ecc71", mode: "solid", emoji: "💎" },
+                "Bouwer": { text: "Bouwer", color1: "#00f0ff", mode: "solid", emoji: "🛠️" },
+                "Moderator": { text: "Moderator", color1: "#e74c3c", mode: "solid", emoji: "🛡️" }
+            };
+            let customRanks = JSON.parse(localStorage.getItem("wp_custom_ranks")) || {};
+            return { ...defaultRanks, ...customRanks };
+        }
+
+        function saveCustomRank() {
+            const id = document.getElementById("rank-create-id").value.trim();
+            const text = document.getElementById("rank-create-text").value.trim();
+            const emoji = document.getElementById("rank-create-emoji").value.trim();
+            const mode = document.getElementById("rank-create-mode").value;
+            const color1 = document.getElementById("rank-create-color1").value.trim();
+            const color2 = document.getElementById("rank-create-color2").value.trim();
+
+            if(!id || !text) return alert("Fout: Rang ID en Display tekst zijn verplicht.");
+
+            let customRanks = JSON.parse(localStorage.getItem("wp_custom_ranks")) || {};
+            customRanks[id] = { text, emoji, mode, color1, color2 };
+
+            localStorage.setItem("wp_custom_ranks", JSON.stringify(customRanks));
+            alert(`🎉 Custom rank [${text}] succesvol opgeslagen!`);
+            
+            // Flush fields
+            document.getElementById("rank-create-id").value = "";
+            document.getElementById("rank-create-text").value = "";
+            document.getElementById("rank-create-emoji").value = "";
+            
+            renderRanksManagement();
+        }
+
+        function renderRanksManagement() {
+            const select = document.getElementById("rank-assign-select");
+            const listZone = document.getElementById("admin-ranks-list-zone");
+            const allRanks = getRegisteredRanks();
+
+            select.innerHTML = "";
+            listZone.innerHTML = "";
+
+            Object.keys(allRanks).forEach(key => {
+                const r = allRanks[key];
+                
+                // Build options dropdown
+                let opt = document.createElement("option");
+                opt.value = key;
+                opt.innerText = `${r.emoji ? r.emoji + ' ' : ''}${r.text}`;
+                select.appendChild(opt);
+
+                // Build viewable system rows
+                let styleStr = r.mode === 'gradient' ? `background: linear-gradient(90deg, ${r.color1}, ${r.color2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;` : `color: ${r.color1};`;
+                let badgeStyle = r.mode === 'gradient' ? `background: linear-gradient(90deg, ${r.color1}, ${r.color2}); color:#000;` : `background: ${r.color1}; color:#000;`;
+                
+                listZone.innerHTML += `
+                    <div style="background:rgba(255,255,255,0.02); padding:8px 12px; border-radius:6px; display:flex; justify-content:between; align-items:center;">
+                        <div>ID: <code>${key}</code> -> <span class="rank-badge-preview" style="${badgeStyle}">${r.emoji} ${r.text}</span></div>
+                    </div>
+                `;
+            });
+        }
+
+        function assignRankToPlayer() {
+            const username = document.getElementById("rank-assign-user").value.trim();
+            const chosenRank = document.getElementById("rank-assign-select").value;
+
+            if(!username) return alert("Voer een geldige spelernaam in.");
+
+            let profileData = JSON.parse(localStorage.getItem(`wp_profile_${username}`)) || { coins: "500" };
+            profileData.rank = chosenRank; // Overwrite system rank key
+
+            localStorage.setItem(`wp_profile_${username}`, JSON.stringify(profileData));
+            alert(`👑 Status Update: Rang van ${username} veranderd naar [${chosenRank}]!`);
+            document.getElementById("rank-assign-user").value = "";
+            syncCounters();
+        }
+
         // --- PROFILE ECONOMY SYSTEMS ---
         function commitPlayerProfile() {
             const user = document.getElementById("econ-target-user").value;
@@ -388,7 +552,11 @@
 
             if(!user) return alert("Fout: Voer een geldige Minecraft naam in.");
             
-            localStorage.setItem(`wp_profile_${user}`, JSON.stringify({ rank: rank, coins: coins }));
+            let existing = JSON.parse(localStorage.getItem(`wp_profile_${user}`)) || {};
+            existing.rank = rank;
+            existing.coins = coins;
+            
+            localStorage.setItem(`wp_profile_${user}`, JSON.stringify(existing));
             alert(`🪙 Database update: Profiel van ${user} aangepast naar rang [${rank}] en saldo [${coins} coins].`);
         }
 
