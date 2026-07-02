@@ -2,54 +2,33 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WonderPark - Mijn Profiel</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .profile-wrapper {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 40px;
-            margin-top: 40px;
-        }
-        .profile-sidebar {
-            background: #111322;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .skin-display {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 20px;
-            border: 3px solid var(--gold);
-            border-radius: 8px;
-            background: #08090e;
-            padding: 10px;
-        }
-        .profile-main {
-            background: #111322;
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .stats-row-profile {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-bottom: 35px;
-        }
-        .stat-box-p {
-            background: #171a30;
-            padding: 20px;
-            border-radius: 6px;
-            border-left: 4px solid var(--gold);
-        }
-        .stat-box-p h5 { color: #7e84a3; font-size: 11px; text-transform: uppercase; }
-        .stat-box-p p { font-size: 22px; font-weight: 700; color: #fff; margin-top: 5px; }
+        .profile-wrapper { max-width: 800px; margin: 120px auto 40px auto; padding: 20px; }
+        .profile-card { background: #0f111e; border: 2px solid rgba(212,175,55,0.3); border-radius: 12px; padding: 40px; text-align: center; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+        .avatar-box { width: 100px; height: 100px; background: #15182b; margin: 0 auto 20px auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; border: 2px solid #d4af37; }
+        .profile-name { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+        
+        /* Rank Prefixes Markup Engines */
+        .rank-badge { display: inline-block; padding: 5px 14px; border-radius: 6px; font-weight: 700; font-size: 14px; text-transform: uppercase; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); color: #fff; }
+        
+        .stats-cluster { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }
+        .stat-box { background: #15182b; padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-box h5 { text-transform: uppercase; color: #7e84a3; font-size: 12px; letter-spacing: 1px; margin-bottom: 5px; }
+        .stat-box p { font-size: 22px; font-weight: bold; color: #fff; }
+
+        /* Hideable Preferences Form */
+        .settings-toggle-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #7e84a3; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
+        .settings-toggle-btn:hover { color: #fff; background: rgba(212,175,55,0.2); border-color: #d4af37; }
+        .settings-drawer { display: none; background: #090a12; border: 1px solid rgba(212,175,55,0.15); border-radius: 8px; padding: 25px; margin-top: 30px; text-align: left; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+        
+        .settings-drawer h4 { color: #d4af37; margin-bottom: 15px; font-size: 16px; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; color: #7e84a3; text-transform: uppercase; }
+        .form-group input { background: #15182b; border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 6px; color:#fff; }
+        .form-group input:focus { border-color: #00f0ff; outline: none; }
     </style>
 </head>
 <body>
@@ -71,87 +50,103 @@
         </div>
     </nav>
 
-    <div class="container animated-fade-in">
-        <h2 class="section-title">Mijn Speler Profiel</h2>
-        
-        <div class="profile-wrapper">
-            <div class="profile-sidebar">
-                <img id="player-avatar" src="https://crafatar.com/avatars/steve?size=120&overlay" class="skin-display" alt="Minecraft Skin">
-                <h3 id="profile-name" style="color:#fff; font-size:1.6rem;">MinecraftNaam</h3>
-                <span id="profile-rank-badge" class="status-badge open" style="margin-top:10px;">Bezoeker</span>
+    <div class="profile-wrapper">
+        <div class="profile-card">
+            <!-- Hideable Settings Trigger -->
+            <button class="settings-toggle-btn" title="Instellingen openen/sluiten" onclick="toggleSettingsDrawer()">⚙️</button>
+            
+            <div class="avatar-box">👤</div>
+            <div class="profile-name" id="profile-username">Minecraft_Speler</div>
+            <div id="rank-badge-container"></div>
+
+            <div class="stats-cluster">
+                <div class="stat-box">
+                    <h5>In-game Saldo</h5>
+                    <p style="color: #f1c40f;" id="profile-coins">0 Munten</p>
+                </div>
+                <div class="stat-box">
+                    <h5>Account Beveiliging</h5>
+                    <p style="color: #2ecc71; font-size:16px; margin-top:5px;">✓ Client Verified</p>
+                </div>
             </div>
 
-            <div class="profile-main">
-                <h3>📊 Server Statistieken</h3>
-                <div class="stats-row-profile" style="margin-top:15px;">
-                    <div class="stat-box-p"><h5>Saldo</h5><p id="profile-coins">0 🪙</p></div>
-                    <div class="stat-box-p"><h5>Aantal Rides</h5><p id="profile-rides">34 🎢</p></div>
-                    <div class="stat-box-p"><h5>Online Tijd</h5><p>12u 43m</p></div>
-                </div>
-
-                <h3 style="margin-top:40px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom:10px;">⚙️ Profiel Instellingen</h3>
-                
-                <div class="form-group" style="margin-top:20px;">
-                    <label>Favoriete Attractie op de server:</label>
-                    <select id="fav-attractie" onchange="saveFavAttractie()">
-                        <option value="Geen">Geen gekozen</option>
-                        <option value="Baron 1898">Baron 1898</option>
-                        <option value="Joris en de Draak">Joris en de Draak</option>
-                        <option value="Python">Python</option>
-                        <option value="Vogel Rok">Vogel Rok</option>
-                        <option value="Villa Volta">Villa Volta</option>
-                    </select>
-                </div>
+            <!-- Expandable Options Menu Container -->
+            <div class="settings-drawer" id="settings-panel">
+                <h4>🔒 Accountinstellingen Wijzigen</h4>
+                <form onsubmit="updateProfilePassword(event)">
+                    <div class="form-group">
+                        <label>Nieuw Wachtwoord:</label>
+                        <input type="password" id="profile-new-pass" required placeholder="Typ nieuw wachtwoord...">
+                    </div>
+                    <button type="submit" class="shop-btn" style="border:none; width:100%; padding:12px; cursor:pointer;">Wachtwoord Beveiligen</button>
+                </form>
             </div>
         </div>
     </div>
 
+    <div id="toast-container"></div>
     <script src="script.js"></script>
+    
     <script>
-        // Profieldata laden bij openen pagina
         document.addEventListener("DOMContentLoaded", () => {
             if(localStorage.getItem('wp_is_logged_in') !== 'true') {
-                alert("Log eerst in om je profiel te bekijken!");
-                window.location.href = "index.html";
+                window.location.href = 'index.html';
                 return;
             }
 
-            const username = localStorage.getItem('wp_username') || "Steve";
-            document.getElementById("profile-name").innerText = username;
-            
-            // Haal de echte skin op via Crafatar op basis van de ingevulde MC naam
-            document.getElementById("player-avatar").src = `https://crafatar.com/avatars/${username}?size=120&overlay`;
+            const username = localStorage.getItem('wp_username');
+            document.getElementById('profile-username').innerText = username;
 
-            // Data ophalen uit de database gekoppeld aan de admin modificaties
-            const savedDb = localStorage.getItem(`wp_profile_${username}`);
-            if(savedDb) {
-                const dbData = JSON.parse(savedDb);
-                document.getElementById("profile-coins").innerText = `${dbData.coins} 🪙`;
-                document.getElementById("profile-rank-badge").innerText = dbData.rank;
+            // Haal database profielvariabelen op
+            let profileData = JSON.parse(localStorage.getItem(`wp_profile_${username}`)) || { rank: "Speler", coins: "500" };
+            document.getElementById('profile-coins').innerText = `🪙 ${profileData.coins} Coins`;
+
+            // Core Render Engine voor Ranks (Inclusief Custom Gradients & Emojis)
+            const defaultRanks = {
+                "Speler": { text: "Speler", color1: "#7e84a3", mode: "solid", emoji: "" },
+                "VIP": { text: "VIP", color1: "#f1c40f", mode: "solid", emoji: "⭐" },
+                "MEGA-VIP": { text: "MEGA-VIP", color1: "#2ecc71", mode: "solid", emoji: "💎" },
+                "Bouwer": { text: "Bouwer", color1: "#00f0ff", mode: "solid", emoji: "🛠️" },
+                "Moderator": { text: "Moderator", color1: "#e74c3c", mode: "solid", emoji: "🛡️" }
+            };
+            const customRanks = JSON.parse(localStorage.getItem("wp_custom_ranks")) || {};
+            const allRanks = { ...defaultRanks, ...customRanks };
+
+            const userRankKey = profileData.rank || "Speler";
+            const rankConfig = allRanks[userRankKey] || defaultRanks["Speler"];
+
+            const badgeContainer = document.getElementById("rank-badge-container");
+            const badge = document.createElement("span");
+            badge.className = "rank-badge";
+            badge.innerText = `${rankConfig.emoji ? rankConfig.emoji + ' ' : ''}${rankConfig.text}`;
+
+            // Injecteer solid kleur of lineaire CSS gradient
+            if(rankConfig.mode === 'gradient') {
+                badge.style.background = `linear-gradient(135deg, ${rankConfig.color1}, ${rankConfig.color2})`;
+                badge.style.color = "#000"; // Donkere tekst op felle gradients voor leesbaarheid
             } else {
-                // Default waarden als admin nog niks heeft aangepast
-                document.getElementById("profile-coins").innerText = "500 🪙";
-                document.getElementById("profile-rank-badge").innerText = "Bezoeker";
+                badge.style.background = rankConfig.color1;
+                badge.style.color = "#000";
             }
-
-            // Laad favoriete ride van de gebruiker
-            const fav = localStorage.getItem(`wp_fav_ride_${username}`);
-            if(fav) document.getElementById("fav-attractie").value = fav;
-
-            // Mock ride stats genereren
-            if(!localStorage.getItem(`wp_rides_${username}`)) {
-                localStorage.setItem(`wp_rides_${username}`, Math.floor(10 + Math.random() * 50));
-            }
-            document.getElementById("profile-rides").innerText = localStorage.getItem(`wp_rides_${username}`) + " 🎢";
+            badgeContainer.appendChild(badge);
         });
 
-        function saveFavAttractie() {
-            const username = localStorage.getItem('wp_username');
-            const val = document.getElementById("fav-attractie").value;
-            localStorage.setItem(`wp_fav_ride_${username}`, val);
-            if (typeof showToast === "function") {
-                showToast("✨ Favoriete attractie bijgewerkt!", "success");
+        function toggleSettingsDrawer() {
+            const el = document.getElementById("settings-panel");
+            el.style.display = (el.style.display === "block") ? "none" : "block";
+        }
+
+        function updateProfilePassword(e) {
+            e.preventDefault();
+            const newPass = document.getElementById("profile-new-pass").value;
+            localStorage.setItem('wp_password', newPass);
+            if(typeof showToast === 'function') {
+                showToast("🔒 Wachtwoord succesvol bijgewerkt!", "success");
+            } else {
+                alert("Wachtwoord succesvol bijgewerkt!");
             }
+            document.getElementById("profile-new-pass").value = "";
+            toggleSettingsDrawer();
         }
     </script>
 </body>
