@@ -1,4 +1,4 @@
-// ====== SYSTEM: REALTIME NOTIFICATIES (GEEN BROWSER ALERTS MEER) ======
+// ====== SYSTEM: REALTIME NOTIFICATIES ======
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -17,7 +17,7 @@ function showToast(message, type = 'info') {
     }, 3500);
 }
 
-// ====== FUNCTIE: IP KOPIËREN ======
+// ====== IP KOPIËREN ======
 function copyIP() {
     const ipText = document.getElementById("server-ip").innerText;
     navigator.clipboard.writeText(ipText).then(() => {
@@ -25,84 +25,21 @@ function copyIP() {
     });
 }
 
-// ====== SYSTEM: AUTHENTICATIE (LOGIN / REGISTREREN VIA LOCALSTORAGE) ======
-function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
-function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
-
-function toggleAuthTab(type) {
-    if(type === 'login') {
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('register-form').style.display = 'none';
-        document.getElementById('tab-login').classList.add('active');
-        document.getElementById('tab-register').classList.remove('active');
-    } else {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('register-form').style.display = 'block';
-        document.getElementById('tab-login').classList.remove('active');
-        document.getElementById('tab-register').classList.add('active');
-    }
-}
-
-function handleRegister(event) {
-    event.preventDefault();
-    const user = document.getElementById('reg-user').value;
-    const pass = document.getElementById('reg-pass').value;
-
-    localStorage.setItem('wp_username', user);
-    localStorage.setItem('wp_password', pass);
-    
-    showToast("🎉 Account aangemaakt! Log nu in.", "success");
-    toggleAuthTab('login');
-}
-
-function handleLogin(event) {
-    event.preventDefault();
-    const user = document.getElementById('login-user').value;
-    const pass = document.getElementById('login-pass').value;
-
-    const storedUser = localStorage.getItem('wp_username');
-    const storedPass = localStorage.getItem('wp_password');
-
-    if(user && user === storedUser && pass === storedPass) {
-        localStorage.setItem('wp_is_logged_in', 'true');
-        showToast(`🔓 Welkom in WonderPark, ${user}!`, "success");
-        closeAuthModal();
-        updateNavbarAuth();
-    } else {
-        showToast("❌ Onjuiste Minecraft naam of wachtwoord!", "error");
-    }
-}
-
-function handleLogout() {
-    localStorage.removeItem('wp_is_logged_in');
-    showToast("🔒 Uitgelogd. Tot ziens!", "info");
-    updateNavbarAuth();
-    if(window.location.pathname.includes('tickets.html')) {
-        setTimeout(() => window.location.reload(), 1000);
-    }
-}
-
-function updateNavbarAuth() {
-    const authLi = document.getElementById('nav-auth');
-    if (!authLi) return;
-
-    if(localStorage.getItem('wp_is_logged_in') === 'true') {
-        const user = localStorage.getItem('wp_username');
-        authLi.innerHTML = `<span style="color:#d4af37; font-weight:bold; margin-right:10px;">👤 ${user}</span><a href="#" onclick="handleLogout()" class="auth-btn" style="border-color:#e74c3c; color:#e74c3c;">Log uit</a>`;
-    } else {
-        authLi.innerHTML = `<a href="#" onclick="openAuthModal()" class="auth-btn">Inloggen</a>`;
-    }
-}
-
-// ====== LIVE COUNTDOWN TIMER ======
-const targetDate = new Date(2026, 11, 31, 20, 0, 0).getTime(); 
-
+// ====== DYNAMISCHE COUNTDOWN ENGINE ======
 const runCountdown = setInterval(() => {
+    const daysElement = document.getElementById("days");
+    if (!daysElement) return; // Niet op deze pagina
+
+    // Check of de admin een aangepaste datum heeft ingesteld, anders standaard release
+    let targetStr = localStorage.getItem("wp_countdown_target");
+    if (!targetStr) {
+        targetStr = "2026-12-31T20:00"; // Standaard datum
+        localStorage.setItem("wp_countdown_target", targetStr);
+    }
+
+    const targetDate = new Date(targetStr).getTime();
     const now = new Date().getTime();
     const distance = targetDate - now;
-
-    const daysElement = document.getElementById("days");
-    if (!daysElement) { clearInterval(runCountdown); return; } // Stop als element er niet is (andere pagina's)
 
     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -115,29 +52,93 @@ const runCountdown = setInterval(() => {
     document.getElementById("seconds").innerText = seconden.toString().padStart(2, '0');
 
     if (distance < 0) {
-        clearInterval(runCountdown);
-        document.getElementById("countdown").innerHTML = "<div style='color:#2ecc71; font-size:1.5rem; font-weight:bold;'>EVENT IS LIVE! COMP UP!</div>";
+        document.getElementById("countdown").innerHTML = "<div style='color:#2ecc71; font-size:1.5rem; font-weight:bold;'>EVENT/PREMIÈRE IS NU LIVE! COMP UP!</div>";
     }
 }, 1000);
 
-// ====== GLOBAL FORM & SHOP HANDLERS ======
-function handleVacature(event) {
-    event.preventDefault();
-    showToast("📝 Sollicitatie succesvol ingediend! Ons team bekijkt het snel.", "success");
-    event.target.reset();
-}
-
+// ====== COUPLING: TICKETS & SOLLICITATIES NAAR ADMIN ======
 function handleTicket(event) {
     event.preventDefault();
-    showToast("🎟️ Support Ticket aangemaakt! Je ontvangt snel antwoord via je profiel.", "success");
+    const category = event.target.querySelector('select').value;
+    const message = event.target.querySelector('textarea').value;
+    const user = localStorage.getItem('wp_username') || "Anonieme Speler";
+
+    let tickets = JSON.parse(localStorage.getItem("wp_support_tickets")) || [];
+    const newTicket = {
+        id: Math.floor(1000 + Math.random() * 9000).toString(),
+        user: user,
+        category: category,
+        text: message,
+        status: "Open",
+        replies: []
+    };
+
+    tickets.push(newTicket);
+    localStorage.setItem("wp_support_tickets", JSON.stringify(tickets));
+    
+    showToast("🎟️ Support Ticket succesvol naar het Admin Panel gestuurd!", "success");
     event.target.reset();
 }
 
-function buyItem(name) {
-    showToast(`🛒 Direct doorverbonden voor ${name}. Check Tebex bij release!`, "info");
+function handleVacature(event) {
+    event.preventDefault();
+    const name = event.target.querySelectorAll('input')[0].value;
+    const role = event.target.querySelector('select').value;
+    const motivation = event.target.querySelector('textarea').value;
+
+    let apps = JSON.parse(localStorage.getItem("wp_applications")) || [];
+    const newApp = {
+        name: name,
+        role: role,
+        motivation: motivation,
+        status: "In afwachting",
+        adminNote: ""
+    };
+
+    apps.push(newApp);
+    localStorage.setItem("wp_applications", JSON.stringify(apps));
+
+    showToast("📝 Sollicitatie opgeslagen en doorgestuurd naar de administratie!", "success");
+    event.target.reset();
 }
 
-// Initialiseer navbar status bij laden van elke pagina
+// ====== LOGINS & MODALS ======
+function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
+function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
+function toggleAuthTab(type) {
+    if(type === 'login') {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+    } else {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+    }
+}
+function handleRegister(event) {
+    event.preventDefault();
+    localStorage.setItem('wp_username', document.getElementById('reg-user').value);
+    localStorage.setItem('wp_password', document.getElementById('reg-pass').value);
+    showToast("🎉 Geregistreerd! Log nu in.", "success");
+    toggleAuthTab('login');
+}
+function handleLogin(event) {
+    event.preventDefault();
+    if(document.getElementById('login-user').value === localStorage.getItem('wp_username') && document.getElementById('login-pass').value === localStorage.getItem('wp_password')) {
+        localStorage.setItem('wp_is_logged_in', 'true');
+        showToast("🔓 Ingelogd!", "success");
+        closeAuthModal();
+        location.reload();
+    } else { showToast("Fout!", "error"); }
+}
+function handleLogout() {
+    localStorage.removeItem('wp_is_logged_in');
+    location.reload();
+}
 document.addEventListener("DOMContentLoaded", () => {
-    updateNavbarAuth();
+    const authLi = document.getElementById('nav-auth');
+    if (authLi && localStorage.getItem('wp_is_logged_in') === 'true') {
+        authLi.innerHTML = `<span style="color:#d4af37; margin-right:10px;">👤 ${localStorage.getItem('wp_username')}</span><a href="#" onclick="handleLogout()" class="auth-btn">Log uit</a>`;
+    } else if (authLi) {
+        authLi.innerHTML = `<a href="#" onclick="openAuthModal()" class="auth-btn">Inloggen</a>`;
+    }
 });
