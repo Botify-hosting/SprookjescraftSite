@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8"><title>WonderPark - Webshop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar"><div class="nav-container"><a href="index.html" class="logo">Wonder<span>Park</span></a><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="attracties.html">Attracties</a></li><li><a href="tijden.html">Tijden</a></li><li><a href="vacatures.html">Vacatures</a></li><li><a href="staff.html">Staff</a></li><li><a href="highscores.html">Highscores</a></li><li><a href="tickets.html">Tickets</a></li><li><a href="webshop.html" class="shop-btn active">Webshop</a></li><li id="nav-auth"></li></ul></div></nav>
+
+    <main class="container animated-fade-in">
+        <h2 class="section-title">WonderPark Webshop</h2>
+        <div class="grid-3">
+            <div class="card shop-card"><h3>VIP Rank</h3><div class="price">€4.99</div><ul><li>✨ Chatprefix</li><li>🚀 Fly in de Hub</li></ul><button class="buy-btn" onclick="buyItem('VIP')">Koop nu</button></div>
+            <div class="card shop-card"><h3>MEGA VIP</h3><div class="price">€9.99</div><ul><li>👑 Gouden Chatprefix</li><li>🎆 Eigen Vuurwerkshow</li></ul><button class="buy-btn" onclick="buyItem('MEGA-VIP')">Koop nu</button></div>
+        </div>
+    </main>
+
+    <div id="auth-modal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeAuthModal()">&times;</span><div class="auth-tabs"><button id="tab-login" class="active" onclick="toggleAuthTab('login')">Inloggen</button><button id="tab-register" onclick="toggleAuthTab('register')">Registreren</button></div><form id="login-form" onsubmit="handleLogin(event)"><input type="text" id="login-user" placeholder="Minecraft Naam" required><input type="password" id="login-pass" placeholder="Wachtwoord" required><button type="submit" class="submit-btn">Log in</button></form><form id="register-form" onsubmit="handleRegister(event)" style="display:none;"><input type="text" id="reg-user" placeholder="Minecraft Naam" required><input type="email" id="reg-email" placeholder="E-mail" required><input type="password" id="reg-pass" placeholder="Wachtwoord" required><button type="submit" class="submit-btn">Registreer</button></form></div></div>
+    <div id="toast-container"></div>
+    <script src="script.js"></script>
+</body>
+</html>
