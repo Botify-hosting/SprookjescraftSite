@@ -60,7 +60,6 @@
         label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         input, textarea, select { background: #090a12; border: 1px solid rgba(212,175,55,0.2); padding: 14px; border-radius: 6px; color: #fff; font-size: 14px; transition: all 0.2s ease; width: 100%; }
         input:focus, textarea:focus, select:focus { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,240,255,0.15); outline: none; }
-        .inline-row { display: flex; gap: 15px; align-items: center; }
         
         /* Action Buttons */
         .btn { background: var(--gold); color: #000; border: none; padding: 14px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -84,8 +83,20 @@
         .pill-In-Behandeling { background: rgba(241, 196, 15, 0.15); color: var(--warning); border: 1px solid var(--warning); }
         .pill-Gesloten { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid var(--danger); }
 
-        /* Minecraft Badge Preview Elements */
-        .rank-badge-preview { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 13px; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; }
+        /* Badge/Pin Overviews */
+        .rank-badge-preview { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 13px; text-transform: uppercase; color: #fff; }
+        
+        /* PIN EFFECT PREVIEWS & ANIMATIONS */
+        @keyframes masterGlowPulse { 0%, 100% { box-shadow: 0 0 4px var(--g-color, #ff00ff); } 50% { box-shadow: 0 0 16px var(--g-color, #ff00ff); } }
+        @keyframes masterSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes masterRainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        @keyframes masterFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        .pin-preview-badge { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; font-size: 20px; background: #1a1c2e; border: 2px solid rgba(255,255,255,0.1); position: relative; transition: all 0.2s; cursor: pointer; }
+        .pin-fx-glow { animation: masterGlowPulse 2s infinite ease-in-out; }
+        .pin-fx-spin { animation: masterSpin 6s linear infinite; }
+        .pin-fx-rainbow { animation: masterRainbow 4s linear infinite; }
+        .pin-fx-float { animation: masterFloat 2.5s infinite ease-in-out; }
 
         /* View State Controller */
         .view-pane { display: none; }
@@ -102,12 +113,13 @@
     </div>
 
     <aside>
-        <div class="brand-zone">WP_<span>Core_v2</span></div>
+        <div class="brand-zone">WP_<span>Core_v3</span></div>
         <button class="nav-btn active" onclick="switchPane('overview')">📊 Server Dashboard</button>
         <button class="nav-btn" onclick="switchPane('countdown')">⏳ Master Countdown</button>
         <button class="nav-btn" onclick="switchPane('tickets')">💬 Support Tickets (<span id="badge-ticket-count">0</span>)</button>
         <button class="nav-btn" onclick="switchPane('apps')">📝 Sollicitatiebeheer (<span id="badge-app-count">0</span>)</button>
         <button class="nav-btn" onclick="switchPane('ranks')">👑 Rangen & Permissies</button>
+        <button class="nav-btn" onclick="switchPane('pins')">🎖️ Spelden & Pins (New)</button>
         <button class="nav-btn" onclick="switchPane('economy')">🪙 Economie & Profielen</button>
         <button class="nav-btn" onclick="switchPane('alerts')">📢 Global Site Push</button>
         <button class="nav-btn" onclick="switchPane('blacklist')">🚫 IP & Account Ban</button>
@@ -132,8 +144,8 @@
 
         <div id="pane-overview" class="view-pane active">
             <div class="panel-card">
-                <h3>🔄 Deel 1: Centrale Database Manipulatie</h3>
-                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">De website draait op een gesynchroniseerde client-side database. Indien testbestanden, nep-tickets of demonstratie-sollicitaties vereist zijn om de interface te controleren, gebruik dan de onderstaande knop om de database direct te overschrijven met uitgebreide pre-sets.</p>
+                <h3>🔄 Centrale Database Manipulatie</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">De website draait op een gesynchroniseerde client-side database. Indien testbestanden of demonstratiedata vereist zijn om de interface te controleren, klik dan op de onderstaande knop.</p>
                 <button class="btn" onclick="injectSystemPresets()">🔄 Database Overschrijven Met Testbestanden</button>
             </div>
         </div>
@@ -141,7 +153,7 @@
         <div id="pane-countdown" class="view-pane">
             <div class="panel-card">
                 <h3>⏳ Centrale Klok Schakelen</h3>
-                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Stel de exacte minuut in waarop de timer op de homepage afloopt. Dit synchroniseert direct met alle actieve pagina's via de klok-engine.</p>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Stel de exacte minuut in waarop de klok afloopt.</p>
                 <div class="form-element" style="max-width: 400px;">
                     <label>Doeldatum en Tijdstip:</label>
                     <input type="datetime-local" id="ctrl-countdown-date">
@@ -164,58 +176,66 @@
             </div>
         </div>
 
-        <!-- NEW: RANK CREATOR & MANAGER PANE -->
         <div id="pane-ranks" class="view-pane">
             <div class="grid-2">
                 <div class="panel-card">
-                    <h3>🛠️ Stap 1: Nieuwe Rang Ontwerpen (Creator)</h3>
-                    <div class="form-element">
-                        <label>Rang ID / Systeemnaam (Uniek):</label>
-                        <input type="text" id="rank-create-id" placeholder="bijv. god-rank">
-                    </div>
-                    <div class="form-element">
-                        <label>Rang Tekst (Display):</label>
-                        <input type="text" id="rank-create-text" placeholder="GOD">
-                    </div>
-                    <div class="form-element">
-                        <label>Optionele Emoji:</label>
-                        <input type="text" id="rank-create-emoji" placeholder="⚡">
-                    </div>
+                    <h3>🛠️ Stap 1: Nieuwe Rang Ontwerpen</h3>
+                    <div class="form-element"><label>Rang ID (Uniek):</label><input type="text" id="rank-create-id" placeholder="bijv. god-rank"></div>
+                    <div class="form-element"><label>Rang Tekst (Display):</label><input type="text" id="rank-create-text" placeholder="GOD"></div>
+                    <div class="form-element"><label>Optionele Emoji:</label><input type="text" id="rank-create-emoji" placeholder="⚡"></div>
                     <div class="form-element">
                         <label>Kleurmodus:</label>
                         <select id="rank-create-mode" onchange="toggleGradientInputs()">
-                            <option value="solid">Eén Vaste Kleur (Solid Color)</option>
-                            <option value="gradient">Modieuze Verlooptint (Linear Gradient)</option>
+                            <option value="solid">Vaste Kleur (Solid)</option>
+                            <option value="gradient">Verlooptint (Gradient)</option>
                         </select>
                     </div>
-                    <div class="form-element" id="rank-color-container-1">
-                        <label>Primaire Rangkleur (Hex / CSS):</label>
-                        <input type="text" id="rank-create-color1" value="#ff00ff" placeholder="#ff00ff">
+                    <div class="form-element" id="rank-color-container-1"><label>Primaire Kleur:</label><input type="text" id="rank-create-color1" value="#ff00ff"></div>
+                    <div class="form-element" id="rank-color-container-2" style="display:none;"><label>Secundaire Kleur:</label><input type="text" id="rank-create-color2" value="#00ffff"></div>
+                    <button class="btn btn-success" onclick="saveCustomRank()">✨ Registreer Rang</button>
+                </div>
+                <div class="panel-card">
+                    <h3>👑 Stap 2: Rang Toewijzen</h3>
+                    <div class="form-element"><label>Doelnaam Speler:</label><input type="text" id="rank-assign-user" placeholder="Naam..."></div>
+                    <div class="form-element"><label>Selecteer Rang:</label><select id="rank-assign-select"></select></div>
+                    <button class="btn" onclick="assignRankToPlayer()">👑 Wijzig Serverrang</button>
+                    <h3 style="margin-top: 30px; font-size:16px;">📋 Geregistreerde Rangen</h3>
+                    <div id="admin-ranks-list-zone" style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pane-pins" class="view-pane">
+            <div class="grid-2">
+                <div class="panel-card">
+                    <h3>🛠️ Stap 1: Speld Ontwerpen (Pin Creator)</h3>
+                    <div class="form-element"><label>Pin ID / Systeemnaam (Uniek):</label><input type="text" id="pin-create-id" placeholder="baron-master"></div>
+                    <div class="form-element"><label>Pin Naam / Displaystitel:</label><input type="text" id="pin-create-title" placeholder="Baron 1898 Expert"></div>
+                    <div class="form-element"><label>Beschrijving / Hoe te verdienen:</label><input type="text" id="pin-create-desc" placeholder="Rijd 50 keer mee met Baron 1898"></div>
+                    <div class="form-element"><label>Pin Icoor / Emoji:</label><input type="text" id="pin-create-emoji" placeholder="🎢"></div>
+                    
+                    <div class="form-element">
+                        <label>FX & Speciale Visuele Modus:</label>
+                        <select id="pin-create-fx">
+                            <option value="none">Geen effect (Standaard)</option>
+                            <option value="glow">Emissive Neon Glow (Pulseert)</option>
+                            <option value="spin">Kinetic Rotation (Draaiend)</option>
+                            <option value="rainbow">Chroma Multi-Color (Regenboogverloop)</option>
+                            <option value="float">Antigravitatie Zweven (Floating)</option>
+                        </select>
                     </div>
-                    <div class="form-element" id="rank-color-container-2" style="display:none;">
-                        <label>Secundaire Verloopkleur:</label>
-                        <input type="text" id="rank-create-color2" value="#00ffff" placeholder="#00ffff">
-                    </div>
-                    <button class="btn btn-success" onclick="saveCustomRank()">✨ Genereer & Registreer Rang</button>
+                    <div class="form-element"><label>Glow / Rand Accentkleur (Hex):</label><input type="text" id="pin-create-color" value="#d4af37"></div>
+                    <button class="btn btn-success" onclick="saveCustomPin()">🎖️ Smeed & Publiceer Pin</button>
                 </div>
 
                 <div class="panel-card">
-                    <h3>👑 Stap 2: Rang Toewijzen Aan Spelers</h3>
-                    <p style="color:var(--text-muted); font-size:13px; margin-bottom:15px;">Koppel handmatig gemaakte custom rangen aan actieve spelerprofielen.</p>
-                    <div class="form-element">
-                        <label>Doelnaam Speler (Exact):</label>
-                        <input type="text" id="rank-assign-user" placeholder="Bijv. PretparkGek_MC">
-                    </div>
-                    <div class="form-element">
-                        <label>Selecteer Geregistreerde Rang:</label>
-                        <select id="rank-assign-select">
-                            <!-- Dynamically filled -->
-                        </select>
-                    </div>
-                    <button class="btn" onclick="assignRankToPlayer()">👑 Wijzig Serverrang</button>
+                    <h3>🎁 Stap 2: Pin Uitréken Aan Speler</h3>
+                    <div class="form-element"><label>Minecraft Gebruikersnaam:</label><input type="text" id="pin-award-user" placeholder="Bijv. Levi_W"></div>
+                    <div class="form-element"><label>Kies Speld:</label><select id="pin-award-select"></select></div>
+                    <button class="btn" onclick="awardPinToPlayer()">🎁 Speld Toewijzen</button>
 
-                    <h3 style="margin-top: 30px; font-size:16px;">📋 Systeemoverzicht Geregistreerde Rangen</h3>
-                    <div id="admin-ranks-list-zone" style="max-height:180px; overflow-y:auto; font-size:13px; display:flex; flex-direction:column; gap:8px;"></div>
+                    <h3 style="margin-top: 30px; font-size:16px;">📋 Server Spelden Database</h3>
+                    <div id="admin-pins-list-zone" style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
                 </div>
             </div>
         </div>
@@ -224,44 +244,26 @@
             <div class="panel-card">
                 <h3>🪙 Spelerprofiel Databases Modificeren</h3>
                 <div class="grid-2">
-                    <div class="form-element">
-                        <label>Minecraft Naam (Exact):</label>
-                        <input type="text" id="econ-target-user" placeholder="Bijv. Levi_W">
-                    </div>
+                    <div class="form-element"><label>Minecraft Naam (Exact):</label><input type="text" id="econ-target-user" placeholder="Bijv. Levi_W"></div>
                     <div class="form-element">
                         <label>Snelle Systeemrang Toewijzing:</label>
                         <select id="econ-target-rank">
-                            <option value="Speler">Speler (Default)</option>
-                            <option value="VIP">VIP Rank</option>
-                            <option value="MEGA-VIP">MEGA-VIP Rank</option>
-                            <option value="Bouwer">Bouwer (Staff)</option>
-                            <option value="Moderator">Moderator (Staff)</option>
+                            <option value="Speler">Speler</option><option value="VIP">VIP</option><option value="MEGA-VIP">MEGA-VIP</option><option value="Bouwer">Bouwer</option><option value="Moderator">Moderator</option>
                         </select>
                     </div>
                 </div>
-                <div class="form-element" style="max-width: 300px;">
-                    <label>Aantal Munten (Coins Balance):</label>
-                    <input type="number" id="econ-target-coins" value="1000">
-                </div>
-                <button class="btn btn-success" onclick="commitPlayerProfile()">💾 Profiel Wijzigingen Opslaan</button>
+                <div class="form-element" style="max-width: 300px;"><label>Aantal Munten (Coins):</label><input type="number" id="econ-target-coins" value="1000"></div>
+                <button class="btn btn-success" onclick="commitPlayerProfile()">💾 Profiel Opslaan</button>
             </div>
         </div>
 
         <div id="pane-alerts" class="view-pane">
             <div class="panel-card">
                 <h3>📢 Global Live Site Broadcast Engine</h3>
-                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Pusht onmiddellijk een realtime notificatie (Toast Alert) naar alle actieve tabbladen van bezoekers.</p>
-                <div class="form-element">
-                    <label>Bericht Inhoud:</label>
-                    <input type="text" id="alert-push-text" placeholder="Typ hier de live melding...">
-                </div>
+                <div class="form-element"><label>Bericht Inhoud:</label><input type="text" id="alert-push-text"></div>
                 <div class="form-element" style="max-width: 350px;">
-                    <label>Melding Type / Prioriteit:</label>
-                    <select id="alert-push-type">
-                        <option value="info">Blauw (Standaard Informatie)</option>
-                        <option value="success">Groen (Aankondigingen & Events)</option>
-                        <option value="error">Rood (Urgent Onderhoud / Cruciale Waarschuwing)</option>
-                    </select>
+                    <label>Melding Type:</label>
+                    <select id="alert-push-type"><option value="info">Blauw</option><option value="success">Groen</option><option value="error">Rood</option></select>
                 </div>
                 <button class="btn" onclick="fireGlobalAlert()">🚀 Broadcast Uitsturen</button>
             </div>
@@ -269,39 +271,16 @@
 
         <div id="pane-blacklist" class="view-pane">
             <div class="panel-card">
-                <h3>🚫 Toegang Blokkeren (Blacklist / Ban-Systeem)</h3>
-                <div class="form-element" style="max-width: 400px;">
-                    <label>Minecraft Naam of IP-Adres:</label>
-                    <input type="text" id="ban-target" placeholder="Bijv. OngewensteSpeler">
-                </div>
-                <div class="form-element">
-                    <label>Reden van Uitsluiting:</label>
-                    <input type="text" id="ban-reason" placeholder="Bijv. Griefen van het Sprookjesbos / Hacken">
-                </div>
+                <h3>🚫 Toegang Blokkeren (Ban-Systeem)</h3>
+                <div class="form-element"><label>Minecraft Naam of IP-Adres:</label><input type="text" id="ban-target"></div>
+                <div class="form-element"><label>Reden van Uitsluiting:</label><input type="text" id="ban-reason"></div>
                 <button class="btn btn-danger" onclick="commitBan()">🚫 Speler permanent bannen</button>
             </div>
         </div>
     </main>
 
     <script>
-        // Directe beveiligings-gate check
-        (function validateSecurity() {
-            if(!localStorage.getItem("wp_admin_session")) {
-                window.location.href = "index.html";
-            } else {
-                setTimeout(() => {
-                    const lock = document.getElementById("lock-screen");
-                    if(lock) lock.style.display = "none";
-                }, 600);
-            }
-        })();
-
-        function logoutAdmin() {
-            localStorage.removeItem("wp_admin_session");
-            window.location.href = "index.html";
-        }
-
-        // --- PANE CONTROL PLATFORM ---
+        // --- NAVIGATION PANE CONTROLLER ---
         function switchPane(paneId) {
             document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -315,6 +294,7 @@
                 tickets: "Support Ticket Moderatie Panel",
                 apps: "Staff Sollicitatie Management",
                 ranks: "Centrale Serverrangen & Prefix Editor",
+                pins: "Giga Custom Pin & Smeed Systeem Engine",
                 economy: "Spelerprofiel Rangen & Munten Databases",
                 alerts: "Global Website Broadcast Systeem",
                 blacklist: "Toegangsbeheer & Ban-Systeem"
@@ -324,6 +304,7 @@
             if(paneId === 'tickets') renderAdminTickets();
             if(paneId === 'apps') renderAdminApps();
             if(paneId === 'ranks') renderRanksManagement();
+            if(paneId === 'pins') renderPinsManagement();
             syncCounters();
         }
 
@@ -331,151 +312,88 @@
             const tickets = JSON.parse(localStorage.getItem("wp_support_tickets")) || [];
             const apps = JSON.parse(localStorage.getItem("wp_applications")) || [];
             const bans = JSON.parse(localStorage.getItem("wp_system_bans")) || [];
-            
-            let profilesCount = 0;
-            for(let i=0; i<localStorage.length; i++) {
-                if(localStorage.key(i).startsWith("wp_profile_")) profilesCount++;
-            }
-
+            let pCount = 0;
+            for(let i=0; i<localStorage.length; i++) { if(localStorage.key(i).startsWith("wp_profile_")) pCount++; }
             document.getElementById("badge-ticket-count").innerText = tickets.filter(t => t.status !== 'Gesloten').length;
             document.getElementById("badge-app-count").innerText = apps.filter(a => a.status === 'In afwachting').length;
-
             document.getElementById("stat-total-tickets").innerText = tickets.length;
             document.getElementById("stat-total-apps").innerText = apps.length;
-            document.getElementById("stat-total-profiles").innerText = profilesCount || 1;
+            document.getElementById("stat-total-profiles").innerText = pCount || 1;
             document.getElementById("stat-total-bans").innerText = bans.length;
         }
 
-        // --- COUNTDOWN CORE ENGINE ---
-        function commitCountdownChange() {
-            const val = document.getElementById("ctrl-countdown-date").value;
-            if(!val) return alert("Fout: Selecteer een geldige datum.");
-            localStorage.setItem("wp_countdown_target", val);
-            alert("⏰ Succes: Klok gesynchroniseerd op: " + val);
-        }
-
-        // --- LIVE TICKETS PROCESSOR (FIXED BUGGED RENDER) ---
+        // --- TICKETS ENGINE (STRUCTURAL CLEAN INTEGRITY FIX) ---
         function renderAdminTickets() {
             const container = document.getElementById("master-ticket-render-zone");
             const tickets = JSON.parse(localStorage.getItem("wp_support_tickets")) || [];
-            container.innerHTML = tickets.length === 0 ? "<p style='color:var(--text-muted);'>Geen openstaande of verwerkte support tickets gedetecteerd.</p>" : "";
+            container.innerHTML = tickets.length === 0 ? "<p style='color:var(--text-muted);'>Geen support tickets gevonden.</p>" : "";
 
             tickets.forEach((t, i) => {
                 let textLines = (t.replies || []).map(r => `
                     <div class="history-line">
-                        [${r.sender === 'Admin Staff' ? '<span class="tag-admin">STAFF</span>' : '<span class="tag-user">USER</span>'}] 
-                        <b>${r.sender}:</b> ${r.msg}
+                        [${r.sender === 'Admin Staff' ? '<span class="tag-admin">STAFF</span>' : '<span class="tag-user">USER</span>'}] <b>${r.sender}:</b> ${r.msg}
                     </div>
                 `).join('');
 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'operation-wrapper';
-                wrapper.innerHTML = `
-                    <div class="operation-header">
-                        <h3>🎟️ Ticket ID: #${t.id} - Speler: ${t.user}</h3>
-                        <span class="pill pill-${t.status.replace(/ /g, '-')}">${t.status}</span>
-                    </div>
-                    <p style="margin-bottom:10px;"><b>Categorie:</b> <span style="color:var(--neon-cyan);">${t.category}</span></p>
-                    <p style="background:#090a12; padding:12px; border-radius:4px; margin-bottom:15px;"><b>Oorspronkelijk Bericht:</b> ${t.text}</p>
-                    
-                    <label>Communicatie Log:</label>
-                    <div class="history-terminal">${textLines || "Geen berichtenwisseling gestart."}</div>
-
-                    <div class="form-element" style="margin-top:15px;">
-                        <label>Typ Antwoord:</label>
-                        <input type="text" id="ticket-reply-input-${i}" placeholder="Schrijf hier je officiële antwoord naar de speler...">
-                    </div>
-                    <div style="display:flex; gap:12px;">
-                        <button class="btn action-send-reply">Antwoord Verzenden</button>
-                        <button class="btn btn-success action-close-ticket">Antwoord & Ticket Sluiten</button>
-                    </div>
+                const div = document.createElement('div');
+                div.className = 'operation-wrapper';
+                div.innerHTML = `
+                    <div class="operation-header"><h3>🎟️ Ticket #${t.id} - ${t.user}</h3><span class="pill pill-${t.status.replace(/ /g, '-')}">${t.status}</span></div>
+                    <p style="margin-bottom:8px;"><b>Categorie:</b> ${t.category}</p>
+                    <p style="background:#090a12; padding:10px; border-radius:4px; margin-bottom:10px;">${t.text}</p>
+                    <div class="history-terminal">${textLines || "Geen logs."}</div>
+                    <div class="form-element"><input type="text" id="t-reply-${i}" placeholder="Antwoord..."></div>
+                    <button class="btn send-rep">Antwoord</button> <button class="btn btn-success close-t">Sluit Ticket</button>
                 `;
-
-                // Add event listeners structurally to protect closure integrity
-                wrapper.querySelector('.action-send-reply').addEventListener('click', () => submitTicketAction(i, 'In Behandeling'));
-                wrapper.querySelector('.action-close-ticket').addEventListener('click', () => submitTicketAction(i, 'Gesloten'));
-
-                container.appendChild(wrapper);
+                div.querySelector('.send-rep').addEventListener('click', () => procTicket(i, 'In Behandeling'));
+                div.querySelector('.close-t').addEventListener('click', () => procTicket(i, 'Gesloten'));
+                container.appendChild(div);
             });
         }
 
-        function submitTicketAction(index, targetStatus) {
+        function procTicket(index, status) {
             let tickets = JSON.parse(localStorage.getItem("wp_support_tickets")) || [];
-            const replyInput = document.getElementById(`ticket-reply-input-${index}`);
-            const replyMsg = replyInput ? replyInput.value : "";
-
+            const msg = document.getElementById(`t-reply-${index}`).value;
             if(!tickets[index].replies) tickets[index].replies = [];
-            
-            if(replyMsg.trim() !== "") {
-                tickets[index].replies.push({ sender: "Admin Staff", msg: replyMsg });
-            }
-            tickets[index].status = targetStatus;
+            if(msg.trim()) tickets[index].replies.push({ sender: "Admin Staff", msg });
+            tickets[index].status = status;
             localStorage.setItem("wp_support_tickets", JSON.stringify(tickets));
             renderAdminTickets();
             syncCounters();
         }
 
-        // --- APPLICATION REVIEW BOARD ---
         function renderAdminApps() {
             const container = document.getElementById("master-app-render-zone");
             const apps = JSON.parse(localStorage.getItem("wp_applications")) || [];
             container.innerHTML = apps.length === 0 ? "<p style='color:var(--text-muted);'>Geen binnengekomen sollicitaties gevonden.</p>" : "";
-
             apps.forEach((app, i) => {
                 container.innerHTML += `
                     <div class="operation-wrapper" style="border-left-color: var(--neon-cyan);">
-                        <div class="operation-header">
-                            <h3>📝 Sollicitatie van: ${app.name}</h3>
-                            <span class="pill" style="background:rgba(255,255,255,0.05); color:#fff;">${app.status}</span>
-                        </div>
+                        <div class="operation-header"><h3>📝 Sollicitatie van: ${app.name}</h3><span class="pill" style="background:rgba(255,255,255,0.05); color:#fff;">${app.status}</span></div>
                         <p style="margin-bottom:5px;"><b>Gewenste Rang:</b> <span style="color:var(--gold); font-weight:bold;">${app.role}</span></p>
                         <p style="background:#090a12; padding:15px; border-radius:4px; font-style:italic; margin-bottom:15px;">"${app.motivation}"</p>
-                        
                         ${app.adminNote ? `<p style="color:var(--neon-cyan); font-size:13px; margin-bottom:10px;"><b>Interne Bestuursnotitie:</b> ${app.adminNote}</p>` : ""}
-
-                        <div class="form-element">
-                            <label>Beoordelingsnotitie / Reden:</label>
-                            <input type="text" id="app-decision-note-${i}" placeholder="Bijv. Aangenomen wegens sterke motivatie...">
-                        </div>
-                        <div style="display:flex; gap:12px;">
-                            <button class="btn btn-success" onclick="submitAppAction(${i}, 'Geaccepteerd')">Aannemen (Accept)</button>
-                            <button class="btn btn-danger" onclick="submitAppAction(${i}, 'Afgewezen')">Afwijzen (Deny)</button>
-                        </div>
-                    </div>
-                `;
+                        <div class="form-element"><input type="text" id="app-decision-note-${i}" placeholder="Reden..."></div>
+                        <div style="display:flex; gap:12px;"><button class="btn btn-success" onclick="submitAppAction(${i}, 'Geaccepteerd')">Aannemen</button><button class="btn btn-danger" onclick="submitAppAction(${i}, 'Afgewezen')">Afwijzen</button></div>
+                    </div>`;
             });
         }
-
-        function submitAppAction(index, targetStatus) {
+        function submitAppAction(index, status) {
             let apps = JSON.parse(localStorage.getItem("wp_applications")) || [];
             const note = document.getElementById(`app-decision-note-${index}`).value;
-
-            apps[index].status = targetStatus;
+            apps[index].status = status;
             if(note) apps[index].adminNote = note;
-
             localStorage.setItem("wp_applications", JSON.stringify(apps));
             renderAdminApps();
             syncCounters();
         }
 
-        // --- EXCLUSIVE CUSTOM RANK SYSTEMS (CREATOR & ASSIGNER) ---
-        function toggleGradientInputs() {
-            const mode = document.getElementById("rank-create-mode").value;
-            document.getElementById("rank-color-container-2").style.display = (mode === 'gradient') ? 'block' : 'none';
-        }
-
+        // --- RANKS CORES ---
+        function toggleGradientInputs() { document.getElementById("rank-color-container-2").style.display = (document.getElementById("rank-create-mode").value === 'gradient') ? 'block' : 'none'; }
         function getRegisteredRanks() {
-            let defaultRanks = {
-                "Speler": { text: "Speler", color1: "#7e84a3", mode: "solid", emoji: "" },
-                "VIP": { text: "VIP", color1: "#f1c40f", mode: "solid", emoji: "⭐" },
-                "MEGA-VIP": { text: "MEGA-VIP", color1: "#2ecc71", mode: "solid", emoji: "💎" },
-                "Bouwer": { text: "Bouwer", color1: "#00f0ff", mode: "solid", emoji: "🛠️" },
-                "Moderator": { text: "Moderator", color1: "#e74c3c", mode: "solid", emoji: "🛡️" }
-            };
-            let customRanks = JSON.parse(localStorage.getItem("wp_custom_ranks")) || {};
-            return { ...defaultRanks, ...customRanks };
+            let def = { "Speler": { text: "Speler", color1: "#7e84a3", mode: "solid", emoji: "" }, "VIP": { text: "VIP", color1: "#f1c40f", mode: "solid", emoji: "⭐" }, "MEGA-VIP": { text: "MEGA-VIP", color1: "#2ecc71", mode: "solid", emoji: "💎" }, "Bouwer": { text: "Bouwer", color1: "#00f0ff", mode: "solid", emoji: "🛠️" }, "Moderator": { text: "Moderator", color1: "#e74c3c", mode: "solid", emoji: "🛡️" } };
+            return { ...def, ...(JSON.parse(localStorage.getItem("wp_custom_ranks")) || {}) };
         }
-
         function saveCustomRank() {
             const id = document.getElementById("rank-create-id").value.trim();
             const text = document.getElementById("rank-create-text").value.trim();
@@ -483,126 +401,136 @@
             const mode = document.getElementById("rank-create-mode").value;
             const color1 = document.getElementById("rank-create-color1").value.trim();
             const color2 = document.getElementById("rank-create-color2").value.trim();
-
-            if(!id || !text) return alert("Fout: Rang ID en Display tekst zijn verplicht.");
-
-            let customRanks = JSON.parse(localStorage.getItem("wp_custom_ranks")) || {};
-            customRanks[id] = { text, emoji, mode, color1, color2 };
-
-            localStorage.setItem("wp_custom_ranks", JSON.stringify(customRanks));
-            alert(`🎉 Custom rank [${text}] succesvol opgeslagen!`);
-            
-            // Flush fields
-            document.getElementById("rank-create-id").value = "";
-            document.getElementById("rank-create-text").value = "";
-            document.getElementById("rank-create-emoji").value = "";
-            
+            if(!id || !text) return alert("Velden verplicht.");
+            let custom = JSON.parse(localStorage.getItem("wp_custom_ranks")) || {};
+            custom[id] = { text, emoji, mode, color1, color2 };
+            localStorage.setItem("wp_custom_ranks", JSON.stringify(custom));
             renderRanksManagement();
         }
-
         function renderRanksManagement() {
             const select = document.getElementById("rank-assign-select");
             const listZone = document.getElementById("admin-ranks-list-zone");
             const allRanks = getRegisteredRanks();
-
-            select.innerHTML = "";
-            listZone.innerHTML = "";
-
+            select.innerHTML = ""; listZone.innerHTML = "";
             Object.keys(allRanks).forEach(key => {
-                const r = allRanks[key];
-                
-                // Build options dropdown
-                let opt = document.createElement("option");
-                opt.value = key;
-                opt.innerText = `${r.emoji ? r.emoji + ' ' : ''}${r.text}`;
-                select.appendChild(opt);
+                let r = allRanks[key];
+                select.innerHTML += `<option value="${key}">${r.emoji} ${r.text}</option>`;
+                let bg = r.mode === 'gradient' ? `background: linear-gradient(90deg, ${r.color1}, ${r.color2}); color:#000;` : `background: ${r.color1}; color:#000;`;
+                listZone.innerHTML += `<div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;">ID: <code>${key}</code> -> <span class="rank-badge-preview" style="${bg}">${r.emoji} ${r.text}</span></div>`;
+            });
+        }
+        function assignRankToPlayer() {
+            const user = document.getElementById("rank-assign-user").value.trim();
+            const rank = document.getElementById("rank-assign-select").value;
+            if(!user) return alert("Speler invoeren!");
+            let prof = JSON.parse(localStorage.getItem(`wp_profile_${user}`)) || { coins: "500" };
+            prof.rank = rank;
+            localStorage.setItem(`wp_profile_${user}`, JSON.stringify(prof));
+            alert("Rang toegekend!");
+        }
 
-                // Build viewable system rows
-                let styleStr = r.mode === 'gradient' ? `background: linear-gradient(90deg, ${r.color1}, ${r.color2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;` : `color: ${r.color1};`;
-                let badgeStyle = r.mode === 'gradient' ? `background: linear-gradient(90deg, ${r.color1}, ${r.color2}); color:#000;` : `background: ${r.color1}; color:#000;`;
+        // --- NEW MODULE: EXCLUSIVE PINS DATABASE MANAGEMENT ENGINE ---
+        function getSystemPins() {
+            let defPins = {
+                "first-join": { title: "Eerste Bezoek", desc: "Arriveer voor de allereerste keer in WonderPark", emoji: "🎟️", fx: "float", color: "#00f0ff" },
+                "rich-beast": { title: "Zakenmagnaat", desc: "Bezit meer dan 10.000 in-game munten", emoji: "👑", fx: "glow", color: "#d4af37" }
+            };
+            return { ...defPins, ...(JSON.parse(localStorage.getItem("wp_custom_pins")) || {}) };
+        }
+
+        function saveCustomPin() {
+            const id = document.getElementById("pin-create-id").value.trim();
+            const title = document.getElementById("pin-create-title").value.trim();
+            const desc = document.getElementById("pin-create-desc").value.trim();
+            const emoji = document.getElementById("pin-create-emoji").value.trim();
+            const fx = document.getElementById("pin-create-fx").value;
+            const color = document.getElementById("pin-create-color").value.trim();
+
+            if(!id || !title || !emoji) return alert("Fout: ID, Titel en Emoji zijn verplichte parameters.");
+
+            let customPins = JSON.parse(localStorage.getItem("wp_custom_pins")) || {};
+            customPins[id] = { title, desc, emoji, fx, color };
+            localStorage.setItem("wp_custom_pins", JSON.stringify(customPins));
+            
+            alert(`🎖️ Custom Pin [${title}] succesvol gesmeed!`);
+            renderPinsManagement();
+        }
+
+        function renderPinsManagement() {
+            const select = document.getElementById("pin-award-select");
+            const zone = document.getElementById("admin-pins-list-zone");
+            const pins = getSystemPins();
+
+            select.innerHTML = ""; zone.innerHTML = "";
+            Object.keys(pins).forEach(key => {
+                const p = pins[key];
+                select.innerHTML += `<option value="${key}">${p.emoji} ${p.title}</option>`;
                 
-                listZone.innerHTML += `
-                    <div style="background:rgba(255,255,255,0.02); padding:8px 12px; border-radius:6px; display:flex; justify-content:between; align-items:center;">
-                        <div>ID: <code>${key}</code> -> <span class="rank-badge-preview" style="${badgeStyle}">${r.emoji} ${r.text}</span></div>
-                    </div>
-                `;
+                zone.innerHTML += `
+                    <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; display:flex; align-items:center; gap:15px;">
+                        <div class="pin-preview-badge pin-fx-${p.fx}" style="--g-color: ${p.color}; border-color: ${p.color};">${p.emoji}</div>
+                        <div>
+                            <div><b>${p.title}</b> (<code>${key}</code>)</div>
+                            <div style="font-size:12px; color:var(--text-muted);">${p.desc}</div>
+                        </div>
+                    </div>`;
             });
         }
 
-        function assignRankToPlayer() {
-            const username = document.getElementById("rank-assign-user").value.trim();
-            const chosenRank = document.getElementById("rank-assign-select").value;
+        function awardPinToPlayer() {
+            const user = document.getElementById("pin-award-user").value.trim();
+            const pinKey = document.getElementById("pin-award-select").value;
+            if(!user) return alert("Voer een gebruikersnaam in.");
 
-            if(!username) return alert("Voer een geldige spelernaam in.");
+            let playerPins = JSON.parse(localStorage.getItem(`wp_player_pins_${user}`)) || [];
+            if(playerPins.includes(pinKey)) return alert("Speler bezit deze speld al.");
 
-            let profileData = JSON.parse(localStorage.getItem(`wp_profile_${username}`)) || { coins: "500" };
-            profileData.rank = chosenRank; // Overwrite system rank key
-
-            localStorage.setItem(`wp_profile_${username}`, JSON.stringify(profileData));
-            alert(`👑 Status Update: Rang van ${username} veranderd naar [${chosenRank}]!`);
-            document.getElementById("rank-assign-user").value = "";
-            syncCounters();
+            playerPins.push(pinKey);
+            localStorage.setItem(`wp_player_pins_${user}`, JSON.stringify(playerPins));
+            alert(`🎖️ Succes: Speld toegevoegd aan de collectie van ${user}!`);
+            document.getElementById("pin-award-user").value = "";
         }
 
-        // --- PROFILE ECONOMY SYSTEMS ---
+        // --- GENERAL EMISSIONS ---
         function commitPlayerProfile() {
             const user = document.getElementById("econ-target-user").value;
             const rank = document.getElementById("econ-target-rank").value;
             const coins = document.getElementById("econ-target-coins").value;
-
-            if(!user) return alert("Fout: Voer een geldige Minecraft naam in.");
-            
-            let existing = JSON.parse(localStorage.getItem(`wp_profile_${user}`)) || {};
-            existing.rank = rank;
-            existing.coins = coins;
-            
-            localStorage.setItem(`wp_profile_${user}`, JSON.stringify(existing));
-            alert(`🪙 Database update: Profiel van ${user} aangepast naar rang [${rank}] en saldo [${coins} coins].`);
+            if(!user) return alert("Gebruiker invoeren.");
+            let ex = JSON.parse(localStorage.getItem(`wp_profile_${user}`)) || {};
+            ex.rank = rank; ex.coins = coins;
+            localStorage.setItem(`wp_profile_${user}`, JSON.stringify(ex));
+            alert("Database Profiel Gewijzigd!");
         }
-
-        // --- BROADCAST EMISSION ---
         function fireGlobalAlert() {
             const text = document.getElementById("alert-push-text").value;
             const type = document.getElementById("alert-push-type").value;
-            if(!text) return alert("Fout: Geen bericht gedefinieerd.");
-
-            localStorage.setItem("wp_global_alert", JSON.stringify({ message: text, type: type, timestamp: Date.now() }));
-            alert("🚀 Broadcast succesvol gelanceerd op de frontend!");
-            document.getElementById("alert-push-text").value = "";
+            if(!text) return alert("Geen tekst.");
+            localStorage.setItem("wp_global_alert", JSON.stringify({ message: text, type, timestamp: Date.now() }));
+            alert("Broadcast gelanceerd!");
         }
-
-        // --- BAN ENGINE ---
         function commitBan() {
             const target = document.getElementById("ban-target").value;
-            const reason = document.getElementById("ban-reason").value || "Overtreding van de serverregels";
-            if(!target) return alert("Voer een doelwit in.");
-
+            const reason = document.getElementById("ban-reason").value || "Regelovertreding";
+            if(!target) return alert("Doelwit ontbreekt.");
             let bans = JSON.parse(localStorage.getItem("wp_system_bans")) || [];
-            bans.push({ target: target, reason: reason, date: new Date().toLocaleDateString() });
+            bans.push({ target, reason, date: new Date().toLocaleDateString() });
             localStorage.setItem("wp_system_bans", JSON.stringify(bans));
-            
-            alert(`🚫 ${target} is toegevoegd aan de server blacklist wegens: ${reason}`);
-            document.getElementById("ban-target").value = "";
-            document.getElementById("ban-reason").value = "";
+            alert("Ban voltooid.");
             syncCounters();
         }
-
-        // --- PRESETS INJECTOR ---
+        function commitCountdownChange() {
+            localStorage.setItem("wp_countdown_target", document.getElementById("ctrl-countdown-date").value);
+            alert("Klok live gezet!");
+        }
         function injectSystemPresets() {
-            const t = [
-                { id: "4921", user: "PretparkGek_MC", category: "Attractie Storing / Bug report", text: "De deuren van Villa Volta openen niet automatisch na de show, we zitten vast.", status: "Open", replies: [] },
-                { id: "8821", user: "MineCraftKoning", category: "Webshop Betaling Probleem", text: "Ik heb VIP gekocht via Tebex maar ik heb de prefix nog niet ingame gekregen.", status: "In Behandeling", replies: [{sender: "Admin Staff", msg: "We zijn je transactie-ID aan het nakijken!"}] }
-            ];
-            const a = [
-                { name: "SprookjesBouwer", role: "Bouwer (Builder)", motivation: "Ik bouw al 5 jaar pretparken na in MC en wil graag Joris en de Draak rethemen.", status: "In afwachting", adminNote: "" }
-            ];
+            const t = [{ id: "4921", user: "PretparkGek_MC", category: "Attractie Storing / Bug report", text: "De deuren van Villa Volta openen niet.", status: "Open", replies: [] }];
+            const a = [{ name: "SprookjesBouwer", role: "Bouwer (Builder)", motivation: "Ik bouw al 5 jaar pretparken na.", status: "In afwachting", adminNote: "" }];
             localStorage.setItem("wp_support_tickets", JSON.stringify(t));
             localStorage.setItem("wp_applications", JSON.stringify(a));
-            alert("🔄 Systeem presets geïnjecteerd! Open de tabbladen om ze te beheren.");
+            alert("Presets geladen!");
             syncCounters();
         }
-
-        // Run initial counters
         syncCounters();
     </script>
 </body>
