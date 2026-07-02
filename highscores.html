@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8"><title>WonderPark - Highscores</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar"><div class="nav-container"><a href="index.html" class="logo">Wonder<span>Park</span></a><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="attracties.html">Attracties</a></li><li><a href="tijden.html">Tijden</a></li><li><a href="vacatures.html">Vacatures</a></li><li><a href="staff.html">Staff</a></li><li><a href="highscores.html" class="active">Highscores</a></li><li><a href="tickets.html">Tickets</a></li><li><a href="webshop.html" class="shop-btn">Webshop</a></li><li id="nav-auth"></li></ul></div></nav>
+
+    <main class="container animated-fade-in">
+        <h2 class="section-title">In-game Toplijsten</h2>
+        <div class="table-container">
+            <table class="highscore-table">
+                <thead><tr><th>#</th><th>Speler</th><th>Online Tijd</th><th>Coins</th></tr></thead>
+                <tbody>
+                    <tr><td>🥇 1</td><td>Levi_W</td><td>240 uur</td><td>25,000</td></tr>
+                    <tr><td>🥈 2</td><td>PretparkGek</td><td>185 uur</td><td>14,350</td></tr>
+                    <tr><td>🥉 3</td><td>Steve_MC</td><td>94 uur</td><td>8,200</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="auth-modal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeAuthModal()">&times;</span><div class="auth-tabs"><button id="tab-login" class="active" onclick="toggleAuthTab('login')">Inloggen</button><button id="tab-register" onclick="toggleAuthTab('register')">Registreren</button></div><form id="login-form" onsubmit="handleLogin(event)"><input type="text" id="login-user" placeholder="Minecraft Naam" required><input type="password" id="login-pass" placeholder="Wachtwoord" required><button type="submit" class="submit-btn">Log in</button></form><form id="register-form" onsubmit="handleRegister(event)" style="display:none;"><input type="text" id="reg-user" placeholder="Minecraft Naam" required><input type="email" id="reg-email" placeholder="E-mail" required><input type="password" id="reg-pass" placeholder="Wachtwoord" required><button type="submit" class="submit-btn">Registreer</button></form></div></div>
+    <div id="toast-container"></div>
+    <script src="script.js"></script>
+</body>
+</html>
