@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WonderPark - Mijn Profiel</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .profile-wrapper {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .profile-sidebar {
+            background: #111322;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .skin-display {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            border: 3px solid var(--gold);
+            border-radius: 8px;
+            background: #08090e;
+            padding: 10px;
+        }
+        .profile-main {
+            background: #111322;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .stats-row-profile {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+        .stat-box-p {
+            background: #171a30;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid var(--gold);
+        }
+        .stat-box-p h5 { color: #7e84a3; font-size: 11px; text-transform: uppercase; }
+        .stat-box-p p { font-size: 22px; font-weight: 700; color: #fff; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Wonder<span>Park</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="attracties.html">Attracties</a></li>
+                <li><a href="tijden.html">Tijden</a></li>
+                <li><a href="vacatures.html">Vacatures</a></li>
+                <li><a href="staff.html">Staff</a></li>
+                <li><a href="highscores.html">Highscores</a></li>
+                <li><a href="tickets.html">Support</a></li>
+                <li><a href="webshop.html" class="shop-btn">Webshop</a></li>
+                <li id="nav-auth"></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container animated-fade-in">
+        <h2 class="section-title">Mijn Speler Profiel</h2>
+        
+        <div class="profile-wrapper">
+            <div class="profile-sidebar">
+                <img id="player-avatar" src="https://crafatar.com/avatars/steve?size=120&overlay" class="skin-display" alt="Minecraft Skin">
+                <h3 id="profile-name" style="color:#fff; font-size:1.6rem;">MinecraftNaam</h3>
+                <span id="profile-rank-badge" class="status-badge open" style="margin-top:10px;">Bezoeker</span>
+            </div>
+
+            <div class="profile-main">
+                <h3>📊 Server Statistieken</h3>
+                <div class="stats-row-profile" style="margin-top:15px;">
+                    <div class="stat-box-p"><h5>Saldo</h5><p id="profile-coins">0 🪙</p></div>
+                    <div class="stat-box-p"><h5>Aantal Rides</h5><p id="profile-rides">34 🎢</p></div>
+                    <div class="stat-box-p"><h5>Online Tijd</h5><p>12u 43m</p></div>
+                </div>
+
+                <h3 style="margin-top:40px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom:10px;">⚙️ Profiel Instellingen</h3>
+                
+                <div class="form-group" style="margin-top:20px;">
+                    <label>Favoriete Attractie op de server:</label>
+                    <select id="fav-attractie" onchange="saveFavAttractie()">
+                        <option value="Geen">Geen gekozen</option>
+                        <option value="Baron 1898">Baron 1898</option>
+                        <option value="Joris en de Draak">Joris en de Draak</option>
+                        <option value="Python">Python</option>
+                        <option value="Vogel Rok">Vogel Rok</option>
+                        <option value="Villa Volta">Villa Volta</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Profieldata laden bij openen pagina
+        document.addEventListener("DOMContentLoaded", () => {
+            if(localStorage.getItem('wp_is_logged_in') !== 'true') {
+                alert("Log eerst in om je profiel te bekijken!");
+                window.location.href = "index.html";
+                return;
+            }
+
+            const username = localStorage.getItem('wp_username') || "Steve";
+            document.getElementById("profile-name").innerText = username;
+            
+            // Haal de echte skin op via Crafatar op basis van de ingevulde MC naam
+            document.getElementById("player-avatar").src = `https://crafatar.com/avatars/${username}?size=120&overlay`;
+
+            // Data ophalen uit de database gekoppeld aan de admin modificaties
+            const savedDb = localStorage.getItem(`wp_profile_${username}`);
+            if(savedDb) {
+                const dbData = JSON.parse(savedDb);
+                document.getElementById("profile-coins").innerText = `${dbData.coins} 🪙`;
+                document.getElementById("profile-rank-badge").innerText = dbData.rank;
+            } else {
+                // Default waarden als admin nog niks heeft aangepast
+                document.getElementById("profile-coins").innerText = "500 🪙";
+                document.getElementById("profile-rank-badge").innerText = "Bezoeker";
+            }
+
+            // Laad favoriete ride van de gebruiker
+            const fav = localStorage.getItem(`wp_fav_ride_${username}`);
+            if(fav) document.getElementById("fav-attractie").value = fav;
+
+            // Mock ride stats genereren
+            if(!localStorage.getItem(`wp_rides_${username}`)) {
+                localStorage.setItem(`wp_rides_${username}`, Math.floor(10 + Math.random() * 50));
+            }
+            document.getElementById("profile-rides").innerText = localStorage.getItem(`wp_rides_${username}`) + " 🎢";
+        });
+
+        function saveFavAttractie() {
+            const username = localStorage.getItem('wp_username');
+            const val = document.getElementById("fav-attractie").value;
+            localStorage.setItem(`wp_fav_ride_${username}`, val);
+            if (typeof showToast === "function") {
+                showToast("✨ Favoriete attractie bijgewerkt!", "success");
+            }
+        }
+    </script>
+</body>
+</html>
