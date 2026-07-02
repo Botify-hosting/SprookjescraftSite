@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8"><title>WonderPark - Vacatures</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar"><div class="nav-container"><a href="index.html" class="logo">Wonder<span>Park</span></a><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="attracties.html">Attracties</a></li><li><a href="tijden.html">Tijden</a></li><li><a href="vacatures.html" class="active">Vacatures</a></li><li><a href="staff.html">Staff</a></li><li><a href="highscores.html">Highscores</a></li><li><a href="tickets.html">Tickets</a></li><li><a href="webshop.html" class="shop-btn">Webshop</a></li><li id="nav-auth"></li></ul></div></nav>
+
+    <main class="container animated-fade-in">
+        <h2 class="section-title">Staff Sollicitaties</h2>
+        <div class="form-box">
+            <form onsubmit="handleVacature(event)">
+                <div class="form-group"><label>Minecraft Naam:</label><input type="text" required></div>
+                <div class="form-group"><label>Gewenste Rang:</label><select><option>Bouwer (Builder)</option><option>Technicus (Redstone)</option><option>Moderator</option></select></div>
+                <div class="form-group"><label>Motivatie:</label><textarea rows="5" required></textarea></div>
+                <button type="submit" class="submit-btn">Indienen</button>
+            </form>
+        </div>
+    </main>
+
+    <div id="auth-modal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeAuthModal()">&times;</span><div class="auth-tabs"><button id="tab-login" class="active" onclick="toggleAuthTab('login')">Inloggen</button><button id="tab-register" onclick="toggleAuthTab('register')">Registreren</button></div><form id="login-form" onsubmit="handleLogin(event)"><input type="text" id="login-user" placeholder="Minecraft Naam" required><input type="password" id="login-pass" placeholder="Wachtwoord" required><button type="submit" class="submit-btn">Log in</button></form><form id="register-form" onsubmit="handleRegister(event)" style="display:none;"><input type="text" id="reg-user" placeholder="Minecraft Naam" required><input type="email" id="reg-email" placeholder="E-mail" required><input type="password" id="reg-pass" placeholder="Wachtwoord" required><button type="submit" class="submit-btn">Registreer</button></form></div></div>
+    <div id="toast-container"></div>
+    <script src="script.js"></script>
+</body>
+</html>
